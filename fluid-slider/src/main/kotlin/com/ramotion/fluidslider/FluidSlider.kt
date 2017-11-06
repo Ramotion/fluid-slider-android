@@ -3,6 +3,7 @@ package com.ramotion.fluidslider
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 
 
@@ -29,13 +30,15 @@ class FluidSlider : View {
     private val buttonStrokeColor = Color.MAGENTA
 
     private val barRect = RectF()
-    private val innerCircleRect = RectF()
+    private val buttonRect = RectF()
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val buttonPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val buttonStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var  progress = 0.0f
+    private var progress = 0.5f
+    private var touchX: Float? = null
+    private var moveX: PointF? = null
 
     constructor(context: Context) : super(context)
 
@@ -62,8 +65,8 @@ class FluidSlider : View {
         // TODO: add shadow offset
         barRect.set(0f, h / 2f, w.toFloat(), h.toFloat())
 
-        innerCircleRect.set(0f, 0f, buttonSize, buttonSize)
-        innerCircleRect.inset(buttonStrokeWidth, buttonStrokeWidth)
+        buttonRect.set(0f, 0f, buttonSize, buttonSize)
+        buttonRect.inset(buttonStrokeWidth, buttonStrokeWidth)
 
         setMeasuredDimension(w, h)
     }
@@ -75,6 +78,36 @@ class FluidSlider : View {
         drawButton(canvas)
     }
 
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                val x = event.rawX
+                if (buttonRect.contains(x, buttonRect.top)) {
+                    touchX = x
+                    true
+                } else {
+                    false
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                touchX?.let {
+                    val x = event.rawX
+                    progress = Math.max(0f, Math.min(1f, progress + (x - it) / maxMovement()))
+                    touchX = x;
+                    invalidate()
+                    true
+                } ?: false
+            }
+            MotionEvent.ACTION_UP -> {
+                touchX?.let {
+                    touchX = null
+                    true
+                } ?: false
+            }
+            else -> false
+        }
+    }
+
     private fun drawBar(canvas: Canvas) {
         canvas.drawRoundRect(barRect, barCornerRadius, barCornerRadius, barPaint)
     }
@@ -82,10 +115,12 @@ class FluidSlider : View {
     private fun drawButton(canvas: Canvas) {
         val left = buttonStrokeWidth + (width - buttonSize) * progress
         val top = barRect.top + buttonStrokeWidth
-        innerCircleRect.offsetTo(left, top)
+        buttonRect.offsetTo(left, top)
 
-        canvas.drawOval(innerCircleRect, buttonPaint)
-        canvas.drawOval(innerCircleRect, buttonStrokePaint)
+        canvas.drawOval(buttonRect, buttonPaint)
+        canvas.drawOval(buttonRect, buttonStrokePaint)
     }
+
+    private fun maxMovement() = buttonStrokeWidth + (width - buttonSize)
 
 }
