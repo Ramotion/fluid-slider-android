@@ -1,10 +1,15 @@
 package com.ramotion.fluidslider
 
+import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.OvershootInterpolator
 
 
 class FluidSlider : View {
@@ -14,7 +19,8 @@ class FluidSlider : View {
         val DEFAULT_BAR_WIDTH = DEFAULT_BUTTON_SIZE * 4
         val DEFAULT_BAR_HEIGHT = DEFAULT_BUTTON_SIZE * 2
         val DEFAULT_BAR_CORNER_RADIUS = 10
-        val DEFAULT_OUTER_STROKE_WIDTH = 2
+        val DEFAULT_OUTER_STROKE_WIDTH = 5
+        val DEFAULT_ANIMATION_DURATION = 300L
     }
 
     private val density: Float = context.resources.displayMetrics.density
@@ -31,6 +37,7 @@ class FluidSlider : View {
 
     private val barRect = RectF()
     private val buttonRect = RectF()
+    private val labelRect = RectF()
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val buttonPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -38,7 +45,6 @@ class FluidSlider : View {
 
     private var progress = 0.5f
     private var touchX: Float? = null
-    private var moveX: PointF? = null
 
     constructor(context: Context) : super(context)
 
@@ -65,8 +71,11 @@ class FluidSlider : View {
         // TODO: add shadow offset
         barRect.set(0f, h / 2f, w.toFloat(), h.toFloat())
 
-        buttonRect.set(0f, 0f, buttonSize, buttonSize)
+        buttonRect.set(0f, barRect.top, buttonSize, barRect.top + buttonSize)
         buttonRect.inset(buttonStrokeWidth, buttonStrokeWidth)
+
+        labelRect.set(0f, barRect.top, buttonSize, barRect.top + buttonSize)
+        labelRect.inset(buttonStrokeWidth, buttonStrokeWidth)
 
         setMeasuredDimension(w, h)
     }
@@ -84,6 +93,7 @@ class FluidSlider : View {
                 val x = event.rawX
                 if (buttonRect.contains(x, buttonRect.top)) {
                     touchX = x
+                    showLabel()
                     true
                 } else {
                     false
@@ -101,6 +111,7 @@ class FluidSlider : View {
             MotionEvent.ACTION_UP -> {
                 touchX?.let {
                     touchX = null
+                    hideLabel()
                     true
                 } ?: false
             }
@@ -114,13 +125,37 @@ class FluidSlider : View {
 
     private fun drawButton(canvas: Canvas) {
         val left = buttonStrokeWidth + (width - buttonSize) * progress
-        val top = barRect.top + buttonStrokeWidth
-        buttonRect.offsetTo(left, top)
 
+        buttonRect.offsetTo(left, buttonRect.top)
         canvas.drawOval(buttonRect, buttonPaint)
         canvas.drawOval(buttonRect, buttonStrokePaint)
+
+        labelRect.offsetTo(left, labelRect.top)
+        canvas.drawOval(labelRect, buttonPaint)
+        canvas.drawOval(labelRect, buttonStrokePaint)
     }
 
     private fun maxMovement() = buttonStrokeWidth + (width - buttonSize)
+
+    private fun showLabel() {
+        val animation = ValueAnimator.ofFloat(labelRect.top, buttonStrokeWidth * 2)
+        animation.addUpdateListener {
+            labelRect.offsetTo(buttonRect.left, it.animatedValue as Float)
+            invalidate()
+        }
+        animation.duration = DEFAULT_ANIMATION_DURATION
+        animation.interpolator = OvershootInterpolator()
+        animation.start()
+    }
+
+    private fun hideLabel() {
+        val animation = ValueAnimator.ofFloat(labelRect.top, buttonRect.top)
+        animation.duration = DEFAULT_ANIMATION_DURATION
+        animation.addUpdateListener {
+            labelRect.offsetTo(buttonRect.left, it.animatedValue as Float)
+            invalidate()
+        }
+        animation.start()
+    }
 
 }
