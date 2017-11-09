@@ -1,7 +1,5 @@
 package com.ramotion.fluidslider
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -15,41 +13,54 @@ import android.view.animation.OvershootInterpolator
 class FluidSlider : View {
 
     private companion object {
-        val DEFAULT_BUTTON_SIZE = 56
-        val DEFAULT_BAR_WIDTH = DEFAULT_BUTTON_SIZE * 4
-        val DEFAULT_BAR_HEIGHT = DEFAULT_BUTTON_SIZE * 2
-        val DEFAULT_BAR_CORNER_RADIUS = 10
-        val DEFAULT_OUTER_STROKE_WIDTH = 2
-        val DEFAULT_ANIMATION_DURATION = 300L
-        val DEFAULT_METABALL_MAX_DISTANCE = DEFAULT_BUTTON_SIZE * 2f
-        val DEFAULT_METABALL_SCALE_RATE = 1f
-        val DEFAULT_METABALL_SPREAD_FACTOR = 0.7f
-        val DEFAULT_METABALL_HANDLER_FACTOR = 2f
+        val BAR_HEIGHT = 56
+        val BAR_CORNER_RADIUS = 10
+        val BAR_VERTICAL_OFFSET = 1.5f
+
+        val SLIDER_HEIGHT = BAR_HEIGHT * 3
+        val SLIDER_WIDTH = BAR_HEIGHT * 4
+
+        val ANIMATION_DURATION = 1000L
+
+        val METABALL_MAX_DISTANCE = BAR_HEIGHT * 3f
+        val METABALL_SCALE_RATE = 1f
+        val METABALL_SPREAD_FACTOR = 0.5f
+        val METABALL_HANDLER_FACTOR = 0f
+        val METABALL_STROKE_WIDTH = 2
+
+        val TOP_CIRCLE_DIAMETER = 56
+        val BOTTOM_CIRCLE_DIAMETER = 56*3.5f
+        val TOUCH_CIRCLE_DIAMETER = 56
     }
 
     private val density: Float = context.resources.displayMetrics.density
 
-    private val desiredWidth = (DEFAULT_BAR_WIDTH * density).toInt()
-    private val desiredHeight = (DEFAULT_BAR_HEIGHT * density).toInt()
+    private val desiredWidth = (SLIDER_WIDTH * density).toInt()
+    private val desiredHeight = (SLIDER_HEIGHT * density).toInt()
 
-    private val buttonSize = DEFAULT_BUTTON_SIZE * density
-    private val buttonStrokeWidth = DEFAULT_OUTER_STROKE_WIDTH * density
+    private val topCircleDiameter = TOP_CIRCLE_DIAMETER * density
+    private val bottomCircleDiameter = BOTTOM_CIRCLE_DIAMETER * density
+    private val touchRectDiameter = TOUCH_CIRCLE_DIAMETER * density
 
-    private val metaballMaxDistance = DEFAULT_METABALL_MAX_DISTANCE * density
-    private val barCornerRadius = DEFAULT_BAR_CORNER_RADIUS * density
+    private val strokeWidth = METABALL_STROKE_WIDTH * density
+    private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
 
-    private val barColor = Color.BLUE
-    private val buttonColor = Color.WHITE
-    private val buttonStrokeColor = Color.MAGENTA
+    private val barHeight = BAR_HEIGHT * density
+    private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
+    private val barCornerRadius = BAR_CORNER_RADIUS * density
 
+    private val colorBar = Color.BLUE
+    private val colorCircle = Color.WHITE
+    private val colorCircleStroke = Color.RED
+
+    // TODO: rename to rect???
     private val barRect = RectF()
-    private val buttonRect = RectF()
-    private val labelRect = RectF()
+    private val topCircleRect = RectF()
+    private val bottomCircleRect = RectF()
+    private val touchRect = RectF()
     private val metaballPath = Path()
 
-    private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val buttonPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val buttonStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var progress = 0.5f
     private var touchX: Float? = null
@@ -60,30 +71,14 @@ class FluidSlider : View {
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-    init {
-        barPaint.style = Paint.Style.FILL
-        barPaint.color = barColor
-
-        buttonPaint.style = Paint.Style.FILL
-        buttonPaint.color = buttonColor
-
-        buttonStrokePaint.style = Paint.Style.STROKE
-        buttonStrokePaint.strokeWidth = buttonStrokeWidth
-        buttonStrokePaint.color = buttonStrokeColor
-    }
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = View.resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
         val h = View.resolveSizeAndState(desiredHeight, heightMeasureSpec, 0)
 
-        // TODO: add shadow offset
-        barRect.set(0f, h / 2f, w.toFloat(), h.toFloat())
-
-        buttonRect.set(0f, barRect.top, buttonSize, barRect.top + buttonSize)
-        buttonRect.inset(buttonStrokeWidth, buttonStrokeWidth)
-
-        labelRect.set(0f, barRect.top, buttonSize, barRect.top + buttonSize)
-        labelRect.inset(buttonStrokeWidth, buttonStrokeWidth)
+        barRect.set(0f, barVerticalOffset, w.toFloat(), barVerticalOffset + barHeight)
+        topCircleRect.set(0f, barVerticalOffset, topCircleDiameter, barVerticalOffset + topCircleDiameter)
+        bottomCircleRect.set(0f, barVerticalOffset, bottomCircleDiameter, barVerticalOffset + bottomCircleDiameter)
+        touchRect.set(0f, barVerticalOffset, touchRectDiameter, barVerticalOffset + touchRectDiameter)
 
         setMeasuredDimension(w, h)
     }
@@ -91,16 +86,37 @@ class FluidSlider : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        drawBar(canvas)
-        drawButton(canvas)
-        drawMetaball(canvas)
+        paint.style = Paint.Style.FILL
+        paint.color = colorBar
+        canvas.drawRoundRect(barRect, barCornerRadius, barCornerRadius, paint)
+
+        val position = width * progress
+
+        offsetRectToPosition(topCircleRect, position)
+        offsetRectToPosition(bottomCircleRect, position)
+        offsetRectToPosition(touchRect, position)
+
+        paint.style = Paint.Style.FILL
+        paint.color = colorCircle
+        canvas.drawOval(topCircleRect, paint)
+        canvas.drawOval(bottomCircleRect, paint)
+        canvas.drawOval(touchRect, paint)
+
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = strokeWidth
+        paint.color = colorCircleStroke
+        canvas.drawOval(topCircleRect, paint)
+        canvas.drawOval(bottomCircleRect, paint)
+        canvas.drawOval(touchRect, paint)
+
+        drawMetaball(canvas, paint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 val x = event.rawX
-                if (buttonRect.contains(x, buttonRect.top)) {
+                if (touchRect.contains(x, touchRect.top)) {
                     touchX = x
                     showLabel()
                     true
@@ -111,7 +127,8 @@ class FluidSlider : View {
             MotionEvent.ACTION_MOVE -> {
                 touchX?.let {
                     val x = event.rawX
-                    progress = Math.max(0f, Math.min(1f, progress + (x - it) / maxMovement()))
+                    val maxMovement = strokeWidth + (width - touchRectDiameter) // buttonStrokeWidth + (width - buttonSize)
+                    progress = Math.max(0f, Math.min(1f, progress + (x - it) / maxMovement))
                     touchX = x;
                     invalidate()
                     true
@@ -128,30 +145,18 @@ class FluidSlider : View {
         }
     }
 
-    private fun drawBar(canvas: Canvas) {
-        canvas.drawRoundRect(barRect, barCornerRadius, barCornerRadius, barPaint)
+    private fun offsetRectToPosition(rect: RectF, position: Float) {
+        rect.offsetTo(position - rect.width() / 2f, rect.top)
     }
 
-    private fun drawButton(canvas: Canvas) {
-        val left = buttonStrokeWidth + (width - buttonSize) * progress
+    private fun drawMetaball(canvas: Canvas, paint: Paint) {
+        val d = Math.abs(topCircleRect.centerY() - bottomCircleRect.centerY());
 
-        buttonRect.offsetTo(left, buttonRect.top)
-        canvas.drawOval(buttonRect, buttonPaint)
-        canvas.drawOval(buttonRect, buttonStrokePaint)
-
-        labelRect.offsetTo(left, labelRect.top)
-        canvas.drawOval(labelRect, buttonPaint)
-        canvas.drawOval(labelRect, buttonStrokePaint)
-    }
-
-    private fun drawMetaball(canvas: Canvas) {
-        val d = Math.abs(labelRect.centerY() - buttonRect.centerY());
-
-        val radius1 = buttonRect.width() / 2
+        val radius1 = topCircleRect.width() / 2
         val radius2 = if (d <= metaballMaxDistance) {
-            (labelRect.width() / 2) * DEFAULT_METABALL_SCALE_RATE
+            (bottomCircleRect.width() / 2) * METABALL_SCALE_RATE
         } else {
-            labelRect.width() / 2
+            bottomCircleRect.width() / 2
         }
 
         Log.d("D", "d: $d, r1: $radius1, r2: $radius2, metaballMaxDistance: $metaballMaxDistance")
@@ -174,18 +179,18 @@ class FluidSlider : View {
             Pair(0f, 0f)
         }
 
-        val center1 = arrayOf(buttonRect.centerX(), buttonRect.centerY())
-        val center2 = arrayOf(labelRect.centerX(), labelRect.centerY())
+        val center1 = arrayOf(topCircleRect.centerX(), topCircleRect.centerY())
+        val center2 = arrayOf(bottomCircleRect.centerX(), bottomCircleRect.centerY())
         val centerDiffX = (center2[0] - center1[0]).toDouble()
         val centerDiffY = (center2[1] - center1[1]).toDouble()
 
         val angleBetweenCenters = Math.atan2(centerDiffY, centerDiffX).toFloat()
         val maxSpread = Math.acos(((radius1 - radius2) / d).toDouble())
 
-        val angle1a = (angleBetweenCenters + u1 + (maxSpread - u1) * DEFAULT_METABALL_SPREAD_FACTOR).toFloat()
-        val angle1b = (angleBetweenCenters - u1 - (maxSpread - u1) * DEFAULT_METABALL_SPREAD_FACTOR).toFloat()
-        val angle2a = (angleBetweenCenters + Math.PI - u2 - (Math.PI - u2 - maxSpread) * DEFAULT_METABALL_SPREAD_FACTOR).toFloat()
-        val angle2b = (angleBetweenCenters - Math.PI + u2 + (Math.PI - u2 - maxSpread) * DEFAULT_METABALL_SPREAD_FACTOR).toFloat()
+        val angle1a = (angleBetweenCenters + u1 + (maxSpread - u1) * METABALL_SPREAD_FACTOR).toFloat()
+        val angle1b = (angleBetweenCenters - u1 - (maxSpread - u1) * METABALL_SPREAD_FACTOR).toFloat()
+        val angle2a = (angleBetweenCenters + Math.PI - u2 - (Math.PI - u2 - maxSpread) * METABALL_SPREAD_FACTOR).toFloat()
+        val angle2b = (angleBetweenCenters - Math.PI + u2 + (Math.PI - u2 - maxSpread) * METABALL_SPREAD_FACTOR).toFloat()
 
         val p1a = getVector(angle1a, radius1).zip(center1).map { p -> p.first + p.second }
         val p1b = getVector(angle1b, radius1).zip(center1).map { p -> p.first + p.second }
@@ -193,7 +198,7 @@ class FluidSlider : View {
         val p2b = getVector(angle2b, radius2).zip(center2).map { p -> p.first + p.second }
 
         val totalRadius = radius1 + radius2
-        val dBase = Math.min(DEFAULT_METABALL_SPREAD_FACTOR * DEFAULT_METABALL_HANDLER_FACTOR,
+        val dBase = Math.min(METABALL_SPREAD_FACTOR * METABALL_HANDLER_FACTOR,
                 getLength(p1a[0] - p2a[0], p1a[1] - p2a[1]) / totalRadius)
         val d2 = dBase * Math.min(1f, d * 2 / totalRadius)
 
@@ -213,8 +218,14 @@ class FluidSlider : View {
         metaballPath.cubicTo(p2b[0] + sp3[0], p2b[1] + sp3[1], p1b[0] + sp4[0], p1b[1] + sp4[1], p1b[0], p1b[1]);
         metaballPath.lineTo(p1a[0], p1a[1]);
         metaballPath.close();
-        canvas.drawPath(metaballPath, buttonPaint);
-        canvas.drawPath(metaballPath, buttonStrokePaint);
+
+        paint.style = Paint.Style.FILL
+        paint.color = colorCircle
+        canvas.drawPath(metaballPath, paint);
+
+        paint.style = Paint.Style.STROKE
+        paint.color = colorCircleStroke
+        canvas.drawPath(metaballPath, paint);
     }
 
     private fun getLength(x: Float, y: Float): Float {
@@ -227,25 +238,23 @@ class FluidSlider : View {
         return arrayOf(x, y)
     }
 
-    private fun maxMovement() = buttonStrokeWidth + (width - buttonSize)
-
     // TODO: add distance
     private fun showLabel() {
-        val animation = ValueAnimator.ofFloat(labelRect.top, buttonStrokeWidth)
+        val animation = ValueAnimator.ofFloat(topCircleRect.top, strokeWidth)
         animation.addUpdateListener {
-            labelRect.offsetTo(buttonRect.left, it.animatedValue as Float)
+            topCircleRect.offsetTo(topCircleRect.left, it.animatedValue as Float)
             invalidate()
         }
-        animation.duration = DEFAULT_ANIMATION_DURATION
+        animation.duration = ANIMATION_DURATION
         animation.interpolator = OvershootInterpolator()
         animation.start()
     }
 
     private fun hideLabel() {
-        val animation = ValueAnimator.ofFloat(labelRect.top, buttonRect.top)
-        animation.duration = DEFAULT_ANIMATION_DURATION
+        val animation = ValueAnimator.ofFloat(topCircleRect.top, barVerticalOffset)
+        animation.duration = ANIMATION_DURATION
         animation.addUpdateListener {
-            labelRect.offsetTo(buttonRect.left, it.animatedValue as Float)
+            topCircleRect.offsetTo(topCircleRect.left, it.animatedValue as Float)
             invalidate()
         }
         animation.start()
