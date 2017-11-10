@@ -3,9 +3,11 @@ package com.ramotion.fluidslider
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.animation.AnticipateInterpolator
 import android.view.animation.OvershootInterpolator
 
@@ -21,11 +23,11 @@ class FluidSlider : View {
         val SLIDER_HEIGHT = BAR_HEIGHT * 3
         val SLIDER_WIDTH = BAR_HEIGHT * 4
 
-        val ANIMATION_DURATION = 2000L
+        val ANIMATION_DURATION = 400L
 
         val METABALL_MAX_DISTANCE = BAR_HEIGHT * 5.0
-        val METABALL_SPREAD_FACTOR = 0.25
-        val METABALL_HANDLER_FACTOR = 5.4
+        val METABALL_SPREAD_FACTOR = 0.5
+        val METABALL_HANDLER_FACTOR = 2.4
 
         val TOP_CIRCLE_DIAMETER = 56
         val BOTTOM_CIRCLE_DIAMETER = 56 * 3.5f
@@ -66,11 +68,26 @@ class FluidSlider : View {
     private var maxMovement = 0f
     private var touchX: Float? = null
 
+    inner class OutlineProvider: ViewOutlineProvider() {
+        override fun getOutline(v: View?, outline: Outline?) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val rect = Rect(rectBar.left.toInt(), rectBar.top.toInt(), rectBar.right.toInt(), rectBar.bottom.toInt())
+                outline?.setRoundRect(rect, barCornerRadius)
+            }
+        }
+    }
+
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    init {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            outlineProvider = OutlineProvider()
+        }
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = View.resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
