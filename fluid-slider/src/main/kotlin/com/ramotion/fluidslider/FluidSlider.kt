@@ -23,10 +23,10 @@ class FluidSlider : View {
         val SLIDER_HEIGHT = BAR_HEIGHT * 3
         val SLIDER_WIDTH = BAR_HEIGHT * 4
 
-        val ANIMATION_DURATION = 400L
+        val ANIMATION_DURATION = 500L
 
         val METABALL_MAX_DISTANCE = BAR_HEIGHT * 5.0
-        val METABALL_SPREAD_FACTOR = 0.5
+        val METABALL_SPREAD_FACTOR = 0.25
         val METABALL_HANDLER_FACTOR = 2.4
 
         val TOP_CIRCLE_DIAMETER = 56
