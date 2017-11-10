@@ -16,20 +16,21 @@ class FluidSlider : View {
         val BAR_HEIGHT = 56
         val BAR_CORNER_RADIUS = 15
         val BAR_VERTICAL_OFFSET = 1.5f
+        val BAR_INNER_HORIZONTAL_OFFSET = 2
 
         val SLIDER_HEIGHT = BAR_HEIGHT * 3
         val SLIDER_WIDTH = BAR_HEIGHT * 4
 
-        val ANIMATION_DURATION = 400L
+        val ANIMATION_DURATION = 2000L
 
         val METABALL_MAX_DISTANCE = BAR_HEIGHT * 5.0
-        val METABALL_SPREAD_FACTOR = 0.5
-        val METABALL_HANDLER_FACTOR = 2.4
+        val METABALL_SPREAD_FACTOR = 0.25
+        val METABALL_HANDLER_FACTOR = 5.4
 
         val TOP_CIRCLE_DIAMETER = 56
-        val BOTTOM_CIRCLE_DIAMETER = 56*3.5f
+        val BOTTOM_CIRCLE_DIAMETER = 56 * 3.5f
         val TOUCH_CIRCLE_DIAMETER = TOP_CIRCLE_DIAMETER
-        val LABEL_CIRCLE_DIAMETER = 40
+        val LABEL_CIRCLE_DIAMETER = 46
     }
 
     private val density: Float = context.resources.displayMetrics.density
@@ -47,6 +48,7 @@ class FluidSlider : View {
     private val barHeight = BAR_HEIGHT * density
     private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
     private val barCornerRadius = BAR_CORNER_RADIUS * density
+    private val barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
 
     private val colorBar = 0xff6168e7.toInt()
     private val colorCircle = Color.WHITE
@@ -82,7 +84,7 @@ class FluidSlider : View {
         val vOffset = barVerticalOffset + (topCircleDiameter - labelRectDiameter) / 2f
         rectLabel.set(0f, vOffset, labelRectDiameter, vOffset + labelRectDiameter)
 
-        maxMovement = w - touchRectDiameter
+        maxMovement = w - touchRectDiameter - barInnerOffset * 2
 
         setMeasuredDimension(w, h)
     }
@@ -94,7 +96,7 @@ class FluidSlider : View {
         paint.color = colorBar
         canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paint)
 
-        val position = touchRectDiameter / 2 + maxMovement * progress
+        val position = barInnerOffset + touchRectDiameter / 2 + maxMovement * progress
 
         offsetRectToPosition(rectTouch, position)
         offsetRectToPosition(rectTopCircle, position)
@@ -221,8 +223,8 @@ class FluidSlider : View {
         val sp3 = getVector(angle2b - pi2, r2).toList().map { it.toFloat() }
         val sp4 = getVector(angle1b + pi2, r1).toList().map { it.toFloat() }
 
-        val fp1a = p1a.map { it.toFloat() }
-        val fp1b = p1b.map { it.toFloat() }
+        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(Math.min(rectBar.right - barInnerOffset, l[0]), l[1]) }
+        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(Math.max(barInnerOffset, l[0]), l[1]) }
         val fp2a = p2a.map { it.toFloat() }
         val fp2b = p2b.map { it.toFloat() }
 
@@ -241,7 +243,7 @@ class FluidSlider : View {
 
     // TODO: add distance
     private fun showLabel() {
-        val top = barVerticalOffset - topCircleDiameter
+        val top = barVerticalOffset - topCircleDiameter - 10
         val labelVOffset =(topCircleDiameter - labelRectDiameter) / 2f
 
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, top)
