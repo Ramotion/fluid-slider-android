@@ -29,7 +29,7 @@ class FluidSlider : View {
 
         val TOP_CIRCLE_DIAMETER = 56
         val BOTTOM_CIRCLE_DIAMETER = 56*3.5f
-        val TOUCH_CIRCLE_DIAMETER = 56
+        val TOUCH_CIRCLE_DIAMETER = TOP_CIRCLE_DIAMETER
     }
 
     private val density: Float = context.resources.displayMetrics.density
@@ -61,7 +61,8 @@ class FluidSlider : View {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var progress = 0.5f
+    private var progress = 0.0f
+    private var maxMovement = 0f
     private var touchX: Float? = null
 
     constructor(context: Context) : super(context)
@@ -79,6 +80,8 @@ class FluidSlider : View {
         bottomCircleRect.set(0f, barVerticalOffset, bottomCircleDiameter, barVerticalOffset + bottomCircleDiameter)
         touchRect.set(0f, barVerticalOffset, touchRectDiameter, barVerticalOffset + touchRectDiameter)
 
+        maxMovement = w - touchRectDiameter
+
         setMeasuredDimension(w, h)
     }
 
@@ -89,11 +92,11 @@ class FluidSlider : View {
         paint.color = colorBar
         canvas.drawRoundRect(barRect, barCornerRadius, barCornerRadius, paint)
 
-        val position = width * progress
+        val position = touchRectDiameter / 2 + maxMovement * progress
 
+        offsetRectToPosition(touchRect, position)
         offsetRectToPosition(topCircleRect, position)
         offsetRectToPosition(bottomCircleRect, position)
-        offsetRectToPosition(touchRect, position)
 
         drawMetaball(canvas, paint, bottomCircleRect, topCircleRect,
                 metaballMaxDistance, METABALL_SPREAD_FACTOR, METABALL_HANDLER_FACTOR)
@@ -129,7 +132,6 @@ class FluidSlider : View {
             MotionEvent.ACTION_MOVE -> {
                 touchX?.let {
                     val x = event.rawX
-                    val maxMovement = strokeWidth + (width - touchRectDiameter) // buttonStrokeWidth + (width - buttonSize)
                     progress = Math.max(0f, Math.min(1f, progress + (x - it) / maxMovement))
                     touchX = x;
                     invalidate()
@@ -148,7 +150,7 @@ class FluidSlider : View {
     }
 
     private fun offsetRectToPosition(rect: RectF, position: Float) {
-        rect.offsetTo(position - rect.width() / 2f, rect.top)
+        rect.offsetTo(position - rect.width()/ 2f, rect.top)
     }
 
 
