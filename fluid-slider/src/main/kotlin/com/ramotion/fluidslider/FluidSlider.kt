@@ -63,7 +63,8 @@ class FluidSlider : View {
     private val rectLabel = RectF()
     private val pathMetaball = Path()
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paintBar = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paintLabel = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var progress = 0.5f
     private var maxMovement = 0f
@@ -88,6 +89,12 @@ class FluidSlider : View {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             outlineProvider = OutlineProvider()
         }
+
+        paintBar.style = Paint.Style.FILL
+        paintBar.color = colorBar
+
+        paintLabel.style = Paint.Style.FILL
+        paintLabel.color = colorCircle
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -117,26 +124,16 @@ class FluidSlider : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        paint.style = Paint.Style.FILL
-        paint.color = colorBar
-        canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paint)
+        drawSliderBar(canvas, paintBar, rectBar, barCornerRadius)
 
         val position = barInnerOffset + touchRectDiameter / 2 + maxMovement * progress
+        offsetRectToPosition(position, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
-        offsetRectToPosition(rectTouch, position)
-        offsetRectToPosition(rectTopCircle, position)
-        offsetRectToPosition(rectBottomCircle, position)
-        offsetRectToPosition(rectLabel, position)
-
-        drawMetaball(canvas, paint, rectBottomCircle, rectTopCircle,
+        drawMetaball(canvas, paintBar,
+                pathMetaball, rectBottomCircle, rectTopCircle,
                 metaballMaxDistance, METABALL_SPREAD_FACTOR, METABALL_HANDLER_FACTOR)
 
-        paint.style = Paint.Style.FILL
-        paint.color = colorBar
-        canvas.drawOval(rectTopCircle, paint)
-
-        paint.color = colorCircle
-        canvas.drawOval(rectLabel, paint)
+        drawLabel(canvas, paintLabel, rectLabel)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -171,10 +168,11 @@ class FluidSlider : View {
         }
     }
 
-    private fun offsetRectToPosition(rect: RectF, position: Float) {
-        rect.offsetTo(position - rect.width()/ 2f, rect.top)
+    private fun offsetRectToPosition(position: Float, vararg rects: RectF) {
+        for (rect in rects) {
+            rect.offsetTo(position - rect.width()/ 2f, rect.top)
+        }
     }
-
 
     private fun getVector(radians: Double, length: Double): Pair<Double, Double> {
         val x = (Math.cos(radians) * length)
@@ -189,7 +187,7 @@ class FluidSlider : View {
     }
 
     private fun drawMetaball(canvas: Canvas, paint: Paint,
-                             circle1: RectF, circle2: RectF,
+                             path: Path, circle1: RectF, circle2: RectF,
                              maxDistance: Double, v: Double, handleRate: Double)
     {
         val radius1 = circle1.width() / 2.0
@@ -253,17 +251,24 @@ class FluidSlider : View {
         val fp2a = p2a.map { it.toFloat() }
         val fp2b = p2b.map { it.toFloat() }
 
-        pathMetaball.reset()
-        pathMetaball.moveTo(fp1a[0], fp1a[1])
-        pathMetaball.cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
-        pathMetaball.lineTo(fp2b[0], fp2b[1]);
-        pathMetaball.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1]);
-        pathMetaball.lineTo(fp1a[0], fp1a[1]);
-        pathMetaball.close();
+        path.reset()
+        path.moveTo(fp1a[0], fp1a[1])
+        path.cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
+        path.lineTo(fp2b[0], fp2b[1]);
+        path.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1]);
+        path.lineTo(fp1a[0], fp1a[1]);
+        path.close();
 
-        paint.style = Paint.Style.FILL
-        paint.color = colorBar
         canvas.drawPath(pathMetaball, paint);
+        canvas.drawOval(circle2, paint)
+    }
+
+    private fun drawSliderBar(canvas: Canvas, paint: Paint, rect: RectF, cornerRadius: Float) {
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+    }
+
+    private fun drawLabel(canvas: Canvas, paint: Paint, labelCircle: RectF) {
+        canvas.drawOval(rectLabel, paint)
     }
 
     // TODO: add distance
