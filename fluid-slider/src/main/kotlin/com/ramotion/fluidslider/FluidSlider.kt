@@ -12,6 +12,7 @@ import android.view.animation.AnticipateInterpolator
 import android.view.animation.OvershootInterpolator
 
 
+// TODO: implement status saving (position)
 class FluidSlider : View {
 
     private companion object {
@@ -90,10 +91,19 @@ class FluidSlider : View {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val w = View.resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
-        val h = View.resolveSizeAndState(desiredHeight, heightMeasureSpec, 0)
+        val w = resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
+        val h = resolveSizeAndState(desiredHeight, heightMeasureSpec, 0)
+        setMeasuredDimension(w, h)
+    }
 
-        rectBar.set(0f, barVerticalOffset, w.toFloat(), barVerticalOffset + barHeight)
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        if (!changed) {
+            return
+        }
+
+        val width = (right - left).toFloat()
+
+        rectBar.set(0f, barVerticalOffset, width, barVerticalOffset + barHeight)
         rectTopCircle.set(0f, barVerticalOffset, topCircleDiameter, barVerticalOffset + topCircleDiameter)
         rectBottomCircle.set(0f, barVerticalOffset, bottomCircleDiameter, barVerticalOffset + bottomCircleDiameter)
         rectTouch.set(0f, barVerticalOffset, touchRectDiameter, barVerticalOffset + touchRectDiameter)
@@ -101,9 +111,7 @@ class FluidSlider : View {
         val vOffset = barVerticalOffset + (topCircleDiameter - labelRectDiameter) / 2f
         rectLabel.set(0f, vOffset, labelRectDiameter, vOffset + labelRectDiameter)
 
-        maxMovement = w - touchRectDiameter - barInnerOffset * 2
-
-        setMeasuredDimension(w, h)
+        maxMovement = width - touchRectDiameter - barInnerOffset * 2
     }
 
     override fun onDraw(canvas: Canvas) {
