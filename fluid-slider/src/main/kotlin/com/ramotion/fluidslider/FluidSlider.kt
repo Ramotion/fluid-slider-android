@@ -34,6 +34,10 @@ class FluidSlider : View {
         val BOTTOM_CIRCLE_DIAMETER = 56 * 3.5f
         val TOUCH_CIRCLE_DIAMETER = TOP_CIRCLE_DIAMETER
         val LABEL_CIRCLE_DIAMETER = 46
+
+        val TEXT_SIZE = 12
+        val TEXT_LEFT = "0"
+        val TEXT_RIGHT = "100"
     }
 
     private val density: Float = context.resources.displayMetrics.density
@@ -48,23 +52,31 @@ class FluidSlider : View {
 
     private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
 
+    private val textSize = TEXT_SIZE * density
+    private val textLeft = TEXT_LEFT
+    private val textRight = TEXT_RIGHT
+
     private val barHeight = BAR_HEIGHT * density
     private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
     private val barCornerRadius = BAR_CORNER_RADIUS * density
     private val barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
 
     private val colorBar = 0xff6168e7.toInt()
-    private val colorCircle = Color.WHITE
+    private val colorLabel = Color.WHITE
+    private val colorLabelText = Color.BLACK
+    private val colorBarText = Color.WHITE
 
     private val rectBar = RectF()
     private val rectTopCircle = RectF()
     private val rectBottomCircle = RectF()
     private val rectTouch = RectF()
     private val rectLabel = RectF()
+    private val rectText = Rect()
     private val pathMetaball = Path()
 
     private val paintBar = Paint(Paint.ANTI_ALIAS_FLAG)
     private val paintLabel = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paintText = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var progress = 0.5f
     private var maxMovement = 0f
@@ -94,7 +106,9 @@ class FluidSlider : View {
         paintBar.color = colorBar
 
         paintLabel.style = Paint.Style.FILL
-        paintLabel.color = colorCircle
+        paintLabel.color = colorLabel
+
+        paintText.textSize = textSize
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -124,8 +138,21 @@ class FluidSlider : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        drawSliderBar(canvas, paintBar, rectBar, barCornerRadius)
+        // Draw slider bar and text
+        canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paintBar)
 
+        paintText.color = colorBarText
+        paintText.textAlign = Paint.Align.LEFT
+        paintText.getTextBounds(textLeft, 0, textLeft.length, rectText)
+        val barTextLeftX = barCornerRadius
+        val barTextLeftY = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
+        canvas.drawText(textLeft, 0, textLeft.length, barTextLeftX, barTextLeftY, paintText)
+
+        paintText.textAlign = Paint.Align.RIGHT
+        val barTextRightX = rectBar.right - barCornerRadius
+        canvas.drawText(textRight, 0, textRight.length, barTextRightX, barTextLeftY, paintText)
+
+        // Draw metaball
         val position = barInnerOffset + touchRectDiameter / 2 + maxMovement * progress
         offsetRectToPosition(position, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
@@ -133,7 +160,16 @@ class FluidSlider : View {
                 pathMetaball, rectBottomCircle, rectTopCircle,
                 metaballMaxDistance, METABALL_SPREAD_FACTOR, METABALL_HANDLER_FACTOR)
 
-        drawLabel(canvas, paintLabel, rectLabel)
+        // Draw label and text
+        canvas.drawOval(rectLabel, paintLabel)
+
+        val textLabel = (progress * 100).toInt().toString() // TODO: get label text from listener
+        paintText.color = colorLabelText
+        paintText.textAlign = Paint.Align.CENTER
+        paintText.getTextBounds(textLabel, 0, textLabel.length, rectText)
+        val labelTextX = rectLabel.centerX();
+        val labelTextY = rectLabel.centerY() + rectText.height() / 2f - rectText.bottom
+        canvas.drawText(textLabel, 0, textLabel.length, labelTextX , labelTextY, paintText)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -261,14 +297,6 @@ class FluidSlider : View {
 
         canvas.drawPath(pathMetaball, paint);
         canvas.drawOval(circle2, paint)
-    }
-
-    private fun drawSliderBar(canvas: Canvas, paint: Paint, rect: RectF, cornerRadius: Float) {
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
-    }
-
-    private fun drawLabel(canvas: Canvas, paint: Paint, labelCircle: RectF) {
-        canvas.drawOval(rectLabel, paint)
     }
 
     // TODO: add distance
