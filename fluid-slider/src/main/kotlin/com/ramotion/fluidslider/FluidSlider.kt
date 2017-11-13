@@ -114,15 +114,14 @@ class FluidSlider : View {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
         val h = resolveSizeAndState(desiredHeight, heightMeasureSpec, 0)
+
         setMeasuredDimension(w, h)
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        if (!changed) {
-            return
-        }
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
 
-        val width = (right - left).toFloat()
+        val width = w.toFloat()
 
         rectBar.set(0f, barVerticalOffset, width, barVerticalOffset + barHeight)
         rectTopCircle.set(0f, barVerticalOffset, topCircleDiameter, barVerticalOffset + topCircleDiameter)
