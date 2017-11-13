@@ -19,7 +19,7 @@ class FluidSlider : View {
         val BAR_HEIGHT = 56
         val BAR_CORNER_RADIUS = 15
         val BAR_VERTICAL_OFFSET = 1.5f
-        val BAR_INNER_HORIZONTAL_OFFSET = 2
+        val BAR_INNER_HORIZONTAL_OFFSET = 4
 
         val SLIDER_HEIGHT = BAR_HEIGHT * 3
         val SLIDER_WIDTH = BAR_HEIGHT * 4
