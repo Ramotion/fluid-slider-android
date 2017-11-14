@@ -168,6 +168,11 @@ class FluidSlider : View {
         drawText(canvas, paintText, text, Paint.Align.CENTER, colorLabelText, 0f, rectLabel, rectText)
     }
 
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -193,6 +198,7 @@ class FluidSlider : View {
                 touchX = null
                 endTrackingListener?.invoke()
                 hideLabel()
+                performClick()
                 true
             }
             else -> false
@@ -263,10 +269,10 @@ class FluidSlider : View {
         val p2b = getVector(angle2b, radius2).let { (it.first + circle2.centerX()) to (it.second + circle2.centerY()) }.toList()
 
         val totalRadius = (radius1 + radius2)
-        val d2Base = Math.min(v * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius);
+        val d2Base = Math.min(v * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
 
         // case circles are overlapping:
-        val d2 = d2Base * Math.min(1.0, d * 2 / (radius1 + radius2));
+        val d2 = d2Base * Math.min(1.0, d * 2 / (radius1 + radius2))
 
         val r1 = radius1 * d2
         val r2 = radius2 * d2
@@ -285,12 +291,12 @@ class FluidSlider : View {
         path.reset()
         path.moveTo(fp1a[0], fp1a[1])
         path.cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
-        path.lineTo(fp2b[0], fp2b[1]);
-        path.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1]);
-        path.lineTo(fp1a[0], fp1a[1]);
-        path.close();
+        path.lineTo(fp2b[0], fp2b[1])
+        path.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
+        path.lineTo(fp1a[0], fp1a[1])
+        path.close()
 
-        canvas.drawPath(pathMetaball, paint);
+        canvas.drawPath(pathMetaball, paint)
         canvas.drawOval(circle2, paint)
     }
 
