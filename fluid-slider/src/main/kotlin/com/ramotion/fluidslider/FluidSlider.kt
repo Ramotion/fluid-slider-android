@@ -169,9 +169,8 @@ class FluidSlider : View {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                val x = event.rawX
-                if (rectTouch.contains(x, rectTouch.top)) {
-                    touchX = x
+                if (rectTouch.contains(event.x, event.y)) {
+                    touchX = event.x
                     showLabel(riseDistance)
                     true
                 } else {
@@ -180,7 +179,7 @@ class FluidSlider : View {
             }
             MotionEvent.ACTION_MOVE -> {
                 touchX?.let {
-                    touchX = event.rawX
+                    touchX = event.x
                     val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
                     if (newPos != position) positionListener?.invoke(position)
                     position = newPos
