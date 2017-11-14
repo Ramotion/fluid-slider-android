@@ -342,7 +342,6 @@ class FluidSlider : View {
             invalidate()
         }
         animation.duration = ANIMATION_DURATION
-        animation.interpolator = AnticipateInterpolator()
         animation.start()
     }
 
