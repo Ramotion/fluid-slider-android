@@ -81,14 +81,16 @@ class FluidSlider : View {
     private var maxMovement = 0f
     private var touchX: Float? = null
 
+    var positionText: String? = null
+    var startText: String? = TEXT_LEFT
+    var endText: String? = TEXT_RIGHT
+
     var position = 0.5f
         private set
 
     var positionListener: ((Float) -> Unit)? = null // TODO: check in Java
-
-    var positionText: String? = null
-    var startText: String? = TEXT_LEFT
-    var endText: String? = TEXT_RIGHT
+    var beginTrackingListener: (() -> Unit)? = null
+    var endTrackingListener: (() -> Unit)? = null
 
     inner class OutlineProvider: ViewOutlineProvider() {
         override fun getOutline(v: View?, outline: Outline?) {
@@ -173,6 +175,7 @@ class FluidSlider : View {
                     position = Math.max(0f, Math.min(1f, (event.x - rectTouch.width() / 2) / maxMovement))
                 }
                 touchX = event.x
+                beginTrackingListener?.invoke()
                 showLabel(riseDistance)
                 true
             }
@@ -188,6 +191,7 @@ class FluidSlider : View {
             }
             MotionEvent.ACTION_UP -> {
                 touchX = null
+                endTrackingListener?.invoke()
                 hideLabel()
                 true
             }
