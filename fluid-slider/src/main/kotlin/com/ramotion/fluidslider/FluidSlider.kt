@@ -169,13 +169,12 @@ class FluidSlider : View {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                if (rectTouch.contains(event.x, event.y)) {
-                    touchX = event.x
-                    showLabel(riseDistance)
-                    true
-                } else {
-                    false
+                if (!rectTouch.contains(event.x, event.y)) {
+                    position = Math.max(0f, Math.min(1f, (event.x - rectTouch.width() / 2) / maxMovement))
                 }
+                touchX = event.x
+                showLabel(riseDistance)
+                true
             }
             MotionEvent.ACTION_MOVE -> {
                 touchX?.let {
@@ -188,11 +187,9 @@ class FluidSlider : View {
                 } == true
             }
             MotionEvent.ACTION_UP -> {
-                touchX?.let {
-                    touchX = null
-                    hideLabel()
-                    true
-                } == true
+                touchX = null
+                hideLabel()
+                true
             }
             else -> false
         }
