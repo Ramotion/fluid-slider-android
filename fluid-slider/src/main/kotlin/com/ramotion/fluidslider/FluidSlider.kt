@@ -17,14 +17,15 @@ class FluidSlider : View {
 
     private companion object {
         val BAR_HEIGHT = 56
-        val BAR_CORNER_RADIUS = 15
+        val BAR_CORNER_RADIUS = 2
         val BAR_VERTICAL_OFFSET = 1.5f
-        val BAR_INNER_HORIZONTAL_OFFSET = 4
+        val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
 
-        val SLIDER_HEIGHT = BAR_HEIGHT * 3
+        val SLIDER_HEIGHT = BAR_HEIGHT + BAR_HEIGHT * BAR_VERTICAL_OFFSET
         val SLIDER_WIDTH = BAR_HEIGHT * 4
 
-        val ANIMATION_DURATION = 500L
+        val ANIMATION_DURATION = 400L
+        val RISE_DISTANCE = BAR_HEIGHT * 1.1f
 
         val METABALL_MAX_DISTANCE = BAR_HEIGHT * 5.0
         val METABALL_SPREAD_FACTOR = 0.25
@@ -36,6 +37,7 @@ class FluidSlider : View {
         val LABEL_CIRCLE_DIAMETER = 46
 
         val TEXT_SIZE = 12
+        val TEXT_OFFSET = 8
         val TEXT_LEFT = "0"
         val TEXT_RIGHT = "100"
     }
@@ -51,7 +53,9 @@ class FluidSlider : View {
     private val labelRectDiameter = LABEL_CIRCLE_DIAMETER * density
 
     private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
+    private val riseDistance = RISE_DISTANCE * density
     private val textSize = TEXT_SIZE * density
+    private val textOffset = TEXT_OFFSET * density
 
     private val barHeight = BAR_HEIGHT * density
     private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
@@ -150,7 +154,7 @@ class FluidSlider : View {
             paintText.color = colorBarText
             paintText.textAlign = Paint.Align.LEFT
             paintText.getTextBounds(it, 0, it.length, rectText)
-            val x = barCornerRadius
+            val x = textOffset
             val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
             canvas.drawText(it, 0, it.length, x, y, paintText)
         }
@@ -160,7 +164,7 @@ class FluidSlider : View {
             paintText.color = colorBarText
             paintText.textAlign = Paint.Align.RIGHT
             paintText.getTextBounds(it, 0, it.length, rectText)
-            val x = rectBar.right - barCornerRadius
+            val x = rectBar.right - textOffset
             val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
             canvas.drawText(it, 0, it.length, x, y, paintText)
         }
@@ -192,7 +196,7 @@ class FluidSlider : View {
                 val x = event.rawX
                 if (rectTouch.contains(x, rectTouch.top)) {
                     touchX = x
-                    showLabel()
+                    showLabel(riseDistance)
                     true
                 } else {
                     false
@@ -314,9 +318,8 @@ class FluidSlider : View {
         canvas.drawOval(circle2, paint)
     }
 
-    // TODO: add distance
-    private fun showLabel() {
-        val top = barVerticalOffset - topCircleDiameter - 10
+    private fun showLabel(dinstace: Float) {
+        val top = barVerticalOffset - dinstace
         val labelVOffset =(topCircleDiameter - labelRectDiameter) / 2f
 
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, top)
