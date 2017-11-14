@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
-import android.view.animation.AnticipateInterpolator
 import android.view.animation.OvershootInterpolator
 
 
@@ -149,25 +148,8 @@ class FluidSlider : View {
         // Draw slider bar and text
         canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paintBar)
 
-        // TODO: move to function drawText()
-        startText?.also {
-            paintText.color = colorBarText
-            paintText.textAlign = Paint.Align.LEFT
-            paintText.getTextBounds(it, 0, it.length, rectText)
-            val x = textOffset
-            val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
-            canvas.drawText(it, 0, it.length, x, y, paintText)
-        }
-
-        // TODO: move to function drawText()
-        endText?.also {
-            paintText.color = colorBarText
-            paintText.textAlign = Paint.Align.RIGHT
-            paintText.getTextBounds(it, 0, it.length, rectText)
-            val x = rectBar.right - textOffset
-            val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
-            canvas.drawText(it, 0, it.length, x, y, paintText)
-        }
+        startText?.let { drawText(canvas, paintText, it, Paint.Align.LEFT, colorBarText, textOffset, rectBar, rectText) }
+        endText?.let { drawText(canvas, paintText, it, Paint.Align.RIGHT, colorBarText, textOffset, rectBar, rectText) }
 
         // Draw metaball
         val x = barInnerOffset + touchRectDiameter / 2 + maxMovement * position
@@ -180,14 +162,8 @@ class FluidSlider : View {
         // Draw label and text
         canvas.drawOval(rectLabel, paintLabel)
 
-        // TODO: move to function drawText()
         val text = positionText ?: (position * 100).toInt().toString()
-        paintText.color = colorLabelText
-        paintText.textAlign = Paint.Align.CENTER
-        paintText.getTextBounds(text, 0, text.length, rectText)
-        val labelTextX = rectLabel.centerX();
-        val labelTextY = rectLabel.centerY() + rectText.height() / 2f - rectText.bottom
-        canvas.drawText(text, 0, text.length, labelTextX , labelTextY, paintText)
+        drawText(canvas, paintText, text, Paint.Align.CENTER, colorLabelText, 0f, rectLabel, rectText)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -316,6 +292,22 @@ class FluidSlider : View {
 
         canvas.drawPath(pathMetaball, paint);
         canvas.drawOval(circle2, paint)
+    }
+
+    private fun drawText(canvas: Canvas, paint: Paint,
+                         text: String, align: Paint.Align, color: Int, offset: Float,
+                         holderRect: RectF, textRect: Rect)
+    {
+        paint.color = color
+        paint.textAlign = align
+        paint.getTextBounds(text, 0, text.length, textRect)
+        val x = when (align) {
+            Paint.Align.LEFT -> offset
+            Paint.Align.CENTER -> holderRect.centerX()
+            Paint.Align.RIGHT -> holderRect.right - offset
+        }
+        val y = holderRect.centerY() + textRect.height() / 2f - textRect.bottom
+        canvas.drawText(text, 0, text.length, x, y, paint)
     }
 
     private fun showLabel(dinstace: Float) {
