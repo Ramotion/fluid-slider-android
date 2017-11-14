@@ -51,10 +51,7 @@ class FluidSlider : View {
     private val labelRectDiameter = LABEL_CIRCLE_DIAMETER * density
 
     private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
-
     private val textSize = TEXT_SIZE * density
-    private val textLeft = TEXT_LEFT
-    private val textRight = TEXT_RIGHT
 
     private val barHeight = BAR_HEIGHT * density
     private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
@@ -78,9 +75,17 @@ class FluidSlider : View {
     private val paintLabel = Paint(Paint.ANTI_ALIAS_FLAG)
     private val paintText = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var progress = 0.5f
     private var maxMovement = 0f
     private var touchX: Float? = null
+
+    var position = 0.5f
+        private set
+
+    var positionListener: ((Float) -> Unit)? = null // TODO: check in Java
+
+    var positionText: String? = null
+    var startText: String? = TEXT_LEFT
+    var endText: String? = TEXT_RIGHT
 
     inner class OutlineProvider: ViewOutlineProvider() {
         override fun getOutline(v: View?, outline: Outline?) {
@@ -140,20 +145,29 @@ class FluidSlider : View {
         // Draw slider bar and text
         canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paintBar)
 
-        paintText.color = colorBarText
-        paintText.textAlign = Paint.Align.LEFT
-        paintText.getTextBounds(textLeft, 0, textLeft.length, rectText)
-        val barTextLeftX = barCornerRadius
-        val barTextLeftY = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
-        canvas.drawText(textLeft, 0, textLeft.length, barTextLeftX, barTextLeftY, paintText)
+        // TODO: move to function drawText()
+        startText?.also {
+            paintText.color = colorBarText
+            paintText.textAlign = Paint.Align.LEFT
+            paintText.getTextBounds(it, 0, it.length, rectText)
+            val x = barCornerRadius
+            val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
+            canvas.drawText(it, 0, it.length, x, y, paintText)
+        }
 
-        paintText.textAlign = Paint.Align.RIGHT
-        val barTextRightX = rectBar.right - barCornerRadius
-        canvas.drawText(textRight, 0, textRight.length, barTextRightX, barTextLeftY, paintText)
+        // TODO: move to function drawText()
+        endText?.also {
+            paintText.color = colorBarText
+            paintText.textAlign = Paint.Align.RIGHT
+            paintText.getTextBounds(it, 0, it.length, rectText)
+            val x = rectBar.right - barCornerRadius
+            val y = rectBar.centerY() + rectText.height() / 2f - rectText.bottom
+            canvas.drawText(it, 0, it.length, x, y, paintText)
+        }
 
         // Draw metaball
-        val position = barInnerOffset + touchRectDiameter / 2 + maxMovement * progress
-        offsetRectToPosition(position, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
+        val x = barInnerOffset + touchRectDiameter / 2 + maxMovement * position
+        offsetRectToPosition(x, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
         drawMetaball(canvas, paintBar,
                 pathMetaball, rectBottomCircle, rectTopCircle,
@@ -162,13 +176,14 @@ class FluidSlider : View {
         // Draw label and text
         canvas.drawOval(rectLabel, paintLabel)
 
-        val textLabel = (progress * 100).toInt().toString() // TODO: get label text from listener
+        // TODO: move to function drawText()
+        val text = positionText ?: (position * 100).toInt().toString()
         paintText.color = colorLabelText
         paintText.textAlign = Paint.Align.CENTER
-        paintText.getTextBounds(textLabel, 0, textLabel.length, rectText)
+        paintText.getTextBounds(text, 0, text.length, rectText)
         val labelTextX = rectLabel.centerX();
         val labelTextY = rectLabel.centerY() + rectText.height() / 2f - rectText.bottom
-        canvas.drawText(textLabel, 0, textLabel.length, labelTextX , labelTextY, paintText)
+        canvas.drawText(text, 0, text.length, labelTextX , labelTextY, paintText)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -185,19 +200,20 @@ class FluidSlider : View {
             }
             MotionEvent.ACTION_MOVE -> {
                 touchX?.let {
-                    val x = event.rawX
-                    progress = Math.max(0f, Math.min(1f, progress + (x - it) / maxMovement))
-                    touchX = x;
+                    touchX = event.rawX
+                    val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
+                    if (newPos != position) positionListener?.invoke(position)
+                    position = newPos
                     invalidate()
                     true
-                } ?: false
+                } == true
             }
             MotionEvent.ACTION_UP -> {
                 touchX?.let {
                     touchX = null
                     hideLabel()
                     true
-                } ?: false
+                } == true
             }
             else -> false
         }
