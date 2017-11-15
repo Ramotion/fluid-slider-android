@@ -37,8 +37,15 @@ class FluidSlider : View {
 
         val TEXT_SIZE = 12
         val TEXT_OFFSET = 8
-        val TEXT_LEFT = "0"
-        val TEXT_RIGHT = "100"
+        val TEXT_START = "0"
+        val TEXT_END = "100"
+
+        val COLOR_BAR = 0xff6168e7.toInt()
+        val COLOR_LABEL = Color.WHITE
+        val COLOR_LABEL_TEXT = Color.BLACK
+        val COLOR_BAR_TEXT = Color.WHITE
+
+        val INITIAL_POSITION = 0.5f
     }
 
     private val density: Float = context.resources.displayMetrics.density
@@ -53,18 +60,12 @@ class FluidSlider : View {
 
     private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
     private val riseDistance = RISE_DISTANCE * density
-    private val textSize = TEXT_SIZE * density
     private val textOffset = TEXT_OFFSET * density
 
     private val barHeight = BAR_HEIGHT * density
     private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
     private val barCornerRadius = BAR_CORNER_RADIUS * density
     private val barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
-
-    private val colorBar = 0xff6168e7.toInt()
-    private val colorLabel = Color.WHITE
-    private val colorLabelText = Color.BLACK
-    private val colorBarText = Color.WHITE
 
     private val rectBar = RectF()
     private val rectTopCircle = RectF()
@@ -74,19 +75,39 @@ class FluidSlider : View {
     private val rectText = Rect()
     private val pathMetaball = Path()
 
-    private val paintBar = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val paintLabel = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val paintText = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paintBar: Paint
+    private val paintLabel: Paint
+    private val paintText: Paint
 
     private var maxMovement = 0f
     private var touchX: Float? = null
 
-    var positionText: String? = null
-    var startText: String? = TEXT_LEFT
-    var endText: String? = TEXT_RIGHT
+    var duration = ANIMATION_DURATION
+        set(value) { field = Math.abs(value) }
 
-    var position = 0.5f
-        private set
+    var colorLabelText = COLOR_LABEL_TEXT
+    var colorBarText = COLOR_BAR_TEXT
+
+    var colorBar: Int
+        get() = paintBar.color
+        set(value) { paintBar.color = value }
+
+    var colorLabel: Int
+        get() = paintLabel.color
+        set(value) { paintLabel.color = value }
+
+    var textSize: Float
+        get() = paintText.textSize
+        set(value) { paintText.textSize = value }
+
+    var positionText: String? = null
+    var startText: String? = TEXT_START
+    var endText: String? = TEXT_END
+
+    var position = INITIAL_POSITION
+        set(value) {
+            field = Math.max(0f, Math.min(1f, value))
+        }
 
     var positionListener: ((Float) -> Unit)? = null // TODO: check in Java
     var beginTrackingListener: (() -> Unit)? = null
@@ -101,24 +122,45 @@ class FluidSlider : View {
         }
     }
 
-    constructor(context: Context) : super(context)
+    constructor(context: Context) : this(context, null, 0)
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
-    init {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             outlineProvider = OutlineProvider()
         }
 
+        paintBar = Paint(Paint.ANTI_ALIAS_FLAG)
         paintBar.style = Paint.Style.FILL
-        paintBar.color = colorBar
 
+        paintLabel = Paint(Paint.ANTI_ALIAS_FLAG)
         paintLabel.style = Paint.Style.FILL
-        paintLabel.color = colorLabel
 
-        paintText.textSize = textSize
+        paintText = Paint(Paint.ANTI_ALIAS_FLAG)
+
+
+        if (attrs != null) {
+            val a = context.theme.obtainStyledAttributes(attrs, R.styleable.FluidSlider, defStyleAttr, 0)
+            try {
+                colorBar = a.getColor(R.styleable.FluidSlider_bar_color, COLOR_BAR)
+                colorLabel = a.getColor(R.styleable.FluidSlider_bubble_color, COLOR_LABEL)
+                colorBarText = a.getColor(R.styleable.FluidSlider_bar_text_color, COLOR_BAR_TEXT)
+                colorLabelText = a.getColor(R.styleable.FluidSlider_bubble_text_color, COLOR_LABEL_TEXT)
+
+                position = Math.max(0f, Math.min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
+                textSize = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
+
+                a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
+                a.getString(R.styleable.FluidSlider_end_text)?.also { endText = it }
+            } finally {
+                a.recycle()
+            }
+        } else {
+            colorBar = COLOR_BAR
+            colorLabel = COLOR_LABEL
+            textSize = TEXT_SIZE * density
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -334,7 +376,7 @@ class FluidSlider : View {
             rectLabel.offsetTo(rectLabel.left, it.animatedValue as Float + labelVOffset)
             invalidate()
         }
-        animation.duration = ANIMATION_DURATION
+        animation.duration = duration
         animation.interpolator = OvershootInterpolator()
         animation.start()
     }
@@ -347,7 +389,7 @@ class FluidSlider : View {
             rectLabel.offsetTo(rectLabel.left, it.animatedValue as Float + labelVOffset)
             invalidate()
         }
-        animation.duration = ANIMATION_DURATION
+        animation.duration = duration
         animation.start()
     }
 
