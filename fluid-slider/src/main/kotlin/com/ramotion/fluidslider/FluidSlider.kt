@@ -4,6 +4,8 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -11,7 +13,6 @@ import android.view.ViewOutlineProvider
 import android.view.animation.OvershootInterpolator
 
 
-// TODO: implement status saving (position)
 class FluidSlider : View {
 
     private companion object {
@@ -122,6 +123,74 @@ class FluidSlider : View {
         }
     }
 
+    class State: BaseSavedState {
+        companion object {
+            @JvmField @Suppress("unused")
+            val CREATOR = object : Parcelable.Creator<State> {
+                override fun createFromParcel(parcel: Parcel): State = State(parcel)
+                override fun newArray(size: Int): Array<State?> = arrayOfNulls(size)
+            }
+        }
+
+        val position: Float
+        val startText: String?
+        val endText: String?
+        val textSize: Float
+        val colorLabel: Int
+        val colorBar: Int
+        val colorBarText: Int
+        val colorLabelText: Int
+        val duration: Long
+
+        constructor(superState: Parcelable,
+                            position: Float,
+                            startText: String?,
+                            endText: String?,
+                            textSize: Float,
+                            colorLabel: Int,
+                            colorBar: Int,
+                            colorBarText: Int,
+                            colorLabelText: Int,
+                            duration: Long) : super(superState)
+        {
+            this.position = position
+            this.startText = startText
+            this.endText = endText
+            this.textSize = textSize
+            this.colorLabel = colorLabel
+            this.colorBar = colorBar
+            this.colorBarText = colorBarText
+            this.colorLabelText = colorLabelText
+            this.duration = duration
+        }
+
+        private constructor(parcel: Parcel) : super(parcel) {
+            this.position = parcel.readFloat()
+            this.startText = parcel.readString()
+            this.endText = parcel.readString()
+            this.textSize = parcel.readFloat()
+            this.colorLabel = parcel.readInt()
+            this.colorBar = parcel.readInt()
+            this.colorBarText = parcel.readInt()
+            this.colorLabelText = parcel.readInt()
+            this.duration = parcel.readLong()
+        }
+
+        override fun writeToParcel(parcel: Parcel, i: Int) {
+            parcel.writeFloat(position)
+            parcel.writeString(startText)
+            parcel.writeString(endText)
+            parcel.writeFloat(textSize)
+            parcel.writeInt(colorLabel)
+            parcel.writeInt(colorBar)
+            parcel.writeInt(colorBarText)
+            parcel.writeInt(colorLabelText)
+            parcel.writeLong(duration)
+        }
+
+        override fun describeContents(): Int = 0
+    }
+
     constructor(context: Context) : this(context, null, 0)
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -160,6 +229,27 @@ class FluidSlider : View {
             colorBar = COLOR_BAR
             colorLabel = COLOR_LABEL
             textSize = TEXT_SIZE * density
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        return State(super.onSaveInstanceState(),
+                position, startText, endText, textSize,
+                colorLabel, colorBar, colorBarText, colorLabelText, duration)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable) {
+        super.onRestoreInstanceState(state)
+        if (state is State) {
+            position = state.position
+            startText = state.startText
+            endText = state.endText
+            textSize = state.textSize
+            colorLabel = state.colorLabel
+            colorBar = state.colorBar
+            colorBarText = state.colorBarText
+            colorLabelText = state.colorLabelText
+            duration = state.duration
         }
     }
 

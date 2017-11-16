@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity() {
         with(findViewById<FluidSlider>(R.id.fluidSlider)) {
             beginTrackingListener = { textView.visibility = View.INVISIBLE }
             endTrackingListener = { textView.visibility = View.VISIBLE }
-            position = 0.35f
         }
     }
 
