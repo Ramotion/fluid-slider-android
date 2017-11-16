@@ -1,6 +1,7 @@
 package com.ramotion.fluidslider
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.os.Build
@@ -31,10 +32,10 @@ class FluidSlider : View {
         val METABALL_SPREAD_FACTOR = 0.25
         val METABALL_HANDLER_FACTOR = 2.4
 
-        val TOP_CIRCLE_DIAMETER = 56
-        val BOTTOM_CIRCLE_DIAMETER = 56 * 3.5f
+        val TOP_CIRCLE_DIAMETER = BAR_HEIGHT
+        val BOTTOM_CIRCLE_DIAMETER = BAR_HEIGHT * 3.5f
         val TOUCH_CIRCLE_DIAMETER = TOP_CIRCLE_DIAMETER
-        val LABEL_CIRCLE_DIAMETER = 46
+        val LABEL_CIRCLE_DIAMETER = BAR_HEIGHT - 10
 
         val TEXT_SIZE = 12
         val TEXT_OFFSET = 8
@@ -114,6 +115,7 @@ class FluidSlider : View {
     var beginTrackingListener: (() -> Unit)? = null
     var endTrackingListener: (() -> Unit)? = null
 
+    @SuppressLint("NewApi")
     inner class OutlineProvider: ViewOutlineProvider() {
         override fun getOutline(v: View?, outline: Outline?) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -305,44 +307,42 @@ class FluidSlider : View {
         return true
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                val x = event.x
-                val y = event.y
-                if (rectBar.contains(x, y)) {
-                    if (!rectTouch.contains(x, y)) {
-                        position = Math.max(0f, Math.min(1f, (x - rectTouch.width() / 2) / maxMovement))
-                    }
-                    touchX = x
-                    beginTrackingListener?.invoke()
-                    showLabel(riseDistance)
-                    true
-                } else {
-                    false
+    override fun onTouchEvent(event: MotionEvent): Boolean = when (event.actionMasked) {
+        MotionEvent.ACTION_DOWN -> {
+            val x = event.x
+            val y = event.y
+            if (rectBar.contains(x, y)) {
+                if (!rectTouch.contains(x, y)) {
+                    position = Math.max(0f, Math.min(1f, (x - rectTouch.width() / 2) / maxMovement))
                 }
+                touchX = x
+                beginTrackingListener?.invoke()
+                showLabel(riseDistance)
+                true
+            } else {
+                false
             }
-            MotionEvent.ACTION_MOVE -> {
-                touchX?.let {
-                    touchX = event.x
-                    val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
-                    if (newPos != position) positionListener?.invoke(position)
-                    position = newPos
-                    invalidate()
-                    true
-                } == true
-            }
-            MotionEvent.ACTION_UP -> {
-                touchX?.let {
-                    touchX = null
-                    endTrackingListener?.invoke()
-                    hideLabel()
-                    performClick()
-                    true
-                } == true
-            }
-            else -> false
         }
+        MotionEvent.ACTION_MOVE -> {
+            touchX?.let {
+                touchX = event.x
+                val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
+                if (newPos != position) positionListener?.invoke(position)
+                position = newPos
+                invalidate()
+                true
+            } == true
+        }
+        MotionEvent.ACTION_UP -> {
+            touchX?.let {
+                touchX = null
+                endTrackingListener?.invoke()
+                hideLabel()
+                performClick()
+                true
+            } == true
+        }
+        else -> false
     }
 
     private fun offsetRectToPosition(position: Float, vararg rects: RectF) {
