@@ -17,25 +17,26 @@ import android.view.animation.OvershootInterpolator
 class FluidSlider : View {
 
     private companion object {
-        val BAR_HEIGHT = 56
+        val BAR_HEIGHT_NORMAL = 56
+        val BAR_HEIGHT_SMALL = 40
+
         val BAR_CORNER_RADIUS = 2
         val BAR_VERTICAL_OFFSET = 1.5f
         val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
 
-        val SLIDER_HEIGHT = BAR_HEIGHT + BAR_HEIGHT * BAR_VERTICAL_OFFSET
-        val SLIDER_WIDTH = BAR_HEIGHT * 4
+        val SLIDER_WIDTH = 4
+        val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
+
+        val TOP_CIRCLE_DIAMETER = 1
+        val BOTTOM_CIRCLE_DIAMETER = 3.5f
+        val TOUCH_CIRCLE_DIAMETER = 1
+        val LABEL_CIRCLE_DIAMETER = 10
 
         val ANIMATION_DURATION = 400L
-        val RISE_DISTANCE = BAR_HEIGHT * 1.05f
-
-        val METABALL_MAX_DISTANCE = BAR_HEIGHT * 5.0
         val METABALL_SPREAD_FACTOR = 0.25
         val METABALL_HANDLER_FACTOR = 2.4
-
-        val TOP_CIRCLE_DIAMETER = BAR_HEIGHT
-        val BOTTOM_CIRCLE_DIAMETER = BAR_HEIGHT * 3.5f
-        val TOUCH_CIRCLE_DIAMETER = TOP_CIRCLE_DIAMETER
-        val LABEL_CIRCLE_DIAMETER = BAR_HEIGHT - 10
+        val METABALL_MAX_DISTANCE = 3.0
+        val METABALL_RISE_DISTANCE = 1.05f
 
         val TEXT_SIZE = 12
         val TEXT_OFFSET = 8
@@ -50,24 +51,23 @@ class FluidSlider : View {
         val INITIAL_POSITION = 0.5f
     }
 
-    private val density: Float = context.resources.displayMetrics.density
+    private val barHeight: Float
 
-    private val desiredWidth = (SLIDER_WIDTH * density).toInt()
-    private val desiredHeight = (SLIDER_HEIGHT * density).toInt()
+    private val desiredWidth: Int
+    private val desiredHeight: Int
 
-    private val topCircleDiameter = TOP_CIRCLE_DIAMETER * density
-    private val bottomCircleDiameter = BOTTOM_CIRCLE_DIAMETER * density
-    private val touchRectDiameter = TOUCH_CIRCLE_DIAMETER * density
-    private val labelRectDiameter = LABEL_CIRCLE_DIAMETER * density
+    private val topCircleDiameter: Float
+    private val bottomCircleDiameter: Float
+    private val touchRectDiameter: Float
+    private val labelRectDiameter: Float
 
-    private val metaballMaxDistance = METABALL_MAX_DISTANCE * density
-    private val riseDistance = RISE_DISTANCE * density
-    private val textOffset = TEXT_OFFSET * density
+    private val metaballMaxDistance: Double
+    private val metaballRiseDistance: Float
+    private val textOffset: Float
 
-    private val barHeight = BAR_HEIGHT * density
-    private val barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
-    private val barCornerRadius = BAR_CORNER_RADIUS * density
-    private val barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
+    private val barVerticalOffset: Float
+    private val barCornerRadius: Float
+    private val barInnerOffset: Float
 
     private val rectBar = RectF()
     private val rectTopCircle = RectF()
@@ -210,6 +210,7 @@ class FluidSlider : View {
 
         paintText = Paint(Paint.ANTI_ALIAS_FLAG)
 
+        val density = context.resources.displayMetrics.density
 
         if (attrs != null) {
             val a = context.theme.obtainStyledAttributes(attrs, R.styleable.FluidSlider, defStyleAttr, 0)
@@ -224,6 +225,9 @@ class FluidSlider : View {
 
                 a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
                 a.getString(R.styleable.FluidSlider_end_text)?.also { endText = it }
+
+                val defaultBarHeight = if (a.getInteger(R.styleable.FluidSlider_size, 1) == 1) BAR_HEIGHT_NORMAL else BAR_HEIGHT_SMALL
+                barHeight = defaultBarHeight * density
             } finally {
                 a.recycle()
             }
@@ -231,7 +235,24 @@ class FluidSlider : View {
             colorBar = COLOR_BAR
             colorLabel = COLOR_LABEL
             textSize = TEXT_SIZE * density
+            barHeight = BAR_HEIGHT_NORMAL * density
         }
+
+        desiredWidth = (barHeight * SLIDER_WIDTH).toInt()
+        desiredHeight = (barHeight * SLIDER_HEIGHT).toInt()
+
+        topCircleDiameter = barHeight * TOP_CIRCLE_DIAMETER
+        bottomCircleDiameter = barHeight * BOTTOM_CIRCLE_DIAMETER
+        touchRectDiameter = barHeight * TOUCH_CIRCLE_DIAMETER
+        labelRectDiameter = barHeight - LABEL_CIRCLE_DIAMETER * density
+
+        metaballMaxDistance = barHeight * METABALL_MAX_DISTANCE
+        metaballRiseDistance = barHeight * METABALL_RISE_DISTANCE
+
+        barVerticalOffset = barHeight * BAR_VERTICAL_OFFSET
+        barCornerRadius = BAR_CORNER_RADIUS * density
+        barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
+        textOffset = TEXT_OFFSET * density
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -317,7 +338,7 @@ class FluidSlider : View {
                 }
                 touchX = x
                 beginTrackingListener?.invoke()
-                showLabel(riseDistance)
+                showLabel(metaballRiseDistance)
                 true
             } else {
                 false
