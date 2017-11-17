@@ -14,10 +14,9 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
 
-        with(findViewById<FluidSlider>(R.id.fluidSlider)) {
-            beginTrackingListener = { textView.visibility = View.INVISIBLE }
-            endTrackingListener = { textView.visibility = View.VISIBLE }
-        }
+        val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+        slider.beginTrackingListener = { textView.visibility = View.INVISIBLE }
+        slider.endTrackingListener = { textView.visibility = View.VISIBLE }
     }
 
 }
