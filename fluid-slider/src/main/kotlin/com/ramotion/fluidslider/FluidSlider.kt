@@ -32,7 +32,7 @@ class FluidSlider : View {
         val TOUCH_CIRCLE_DIAMETER = 1
         val LABEL_CIRCLE_DIAMETER = 10
 
-        val ANIMATION_DURATION = 400L
+        val ANIMATION_DURATION = 400
         val TOP_SPREAD_FACTOR = 0.4
         val BOTTOM_SPREAD_FACTOR = 0.25
         val METABALL_HANDLER_FACTOR = 2.4
@@ -85,7 +85,7 @@ class FluidSlider : View {
     private var maxMovement = 0f
     private var touchX: Float? = null
 
-    var duration = ANIMATION_DURATION
+    var duration = ANIMATION_DURATION.toLong()
         set(value) { field = Math.abs(value) }
 
     var colorLabelText = COLOR_LABEL_TEXT
@@ -223,6 +223,7 @@ class FluidSlider : View {
 
                 position = Math.max(0f, Math.min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
                 textSize = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
+                duration = Math.abs(a.getInteger(R.styleable.FluidSlider_duration, ANIMATION_DURATION)).toLong()
 
                 a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
                 a.getString(R.styleable.FluidSlider_end_text)?.also { endText = it }
