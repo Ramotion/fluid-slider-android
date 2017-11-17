@@ -33,10 +33,11 @@ class FluidSlider : View {
         val LABEL_CIRCLE_DIAMETER = 10
 
         val ANIMATION_DURATION = 400L
-        val METABALL_SPREAD_FACTOR = 0.25
+        val TOP_SPREAD_FACTOR = 0.4
+        val BOTTOM_SPREAD_FACTOR = 0.25
         val METABALL_HANDLER_FACTOR = 2.4
         val METABALL_MAX_DISTANCE = 3.0
-        val METABALL_RISE_DISTANCE = 1.05f
+        val METABALL_RISE_DISTANCE = 1.1f
 
         val TEXT_SIZE = 12
         val TEXT_OFFSET = 8
@@ -314,7 +315,7 @@ class FluidSlider : View {
 
         drawMetaball(canvas, paintBar,
                 pathMetaball, rectBottomCircle, rectTopCircle,
-                metaballMaxDistance, METABALL_SPREAD_FACTOR, METABALL_HANDLER_FACTOR)
+                barInnerOffset, rectBar.right - barInnerOffset, rectBar.top)
 
         // Draw label and text
         canvas.drawOval(rectLabel, paintLabel)
@@ -386,7 +387,12 @@ class FluidSlider : View {
 
     private fun drawMetaball(canvas: Canvas, paint: Paint,
                              path: Path, circle1: RectF, circle2: RectF,
-                             maxDistance: Double, v: Double, handleRate: Double)
+                             leftBorder: Float, rightBorder: Float, topBorder: Float,
+                             riseDistance: Float = metaballRiseDistance,
+                             maxDistance: Double = metaballMaxDistance,
+                             topSpreadFactor: Double = TOP_SPREAD_FACTOR,
+                             bottomSpreadFactor: Double = BOTTOM_SPREAD_FACTOR,
+                             handleRate: Double = METABALL_HANDLER_FACTOR)
     {
         val radius1 = circle1.width() / 2.0
         val radius2 = circle2.width() / 2.0
@@ -419,10 +425,10 @@ class FluidSlider : View {
 
         val angle1 = Math.atan2(centerYMin, centerXMin)
         val angle2 = Math.acos((radius1 - radius2) / d)
-        val angle1a = angle1 + u1 + (angle2 - u1) * v
-        val angle1b = angle1 - u1 - (angle2 - u1) * v
-        val angle2a = (angle1 + Math.PI - u2 - (Math.PI - u2 - angle2) * v)
-        val angle2b = (angle1 - Math.PI + u2 + (Math.PI - u2 - angle2) * v)
+        val angle1a = angle1 + u1 + (angle2 - u1) * bottomSpreadFactor
+        val angle1b = angle1 - u1 - (angle2 - u1) * bottomSpreadFactor
+        val angle2a = (angle1 + Math.PI - u2 - (Math.PI - u2 - angle2) * topSpreadFactor)
+        val angle2b = (angle1 - Math.PI + u2 + (Math.PI - u2 - angle2) * topSpreadFactor)
 
         val p1a = getVector(angle1a, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
         val p1b = getVector(angle1b, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
@@ -430,7 +436,7 @@ class FluidSlider : View {
         val p2b = getVector(angle2b, radius2).let { (it.first + circle2.centerX()) to (it.second + circle2.centerY()) }.toList()
 
         val totalRadius = (radius1 + radius2)
-        val d2Base = Math.min(v * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
+        val d2Base = Math.min(Math.max(topSpreadFactor, bottomSpreadFactor) * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
 
         // case circles are overlapping:
         val d2 = d2Base * Math.min(1.0, d * 2 / (radius1 + radius2))
@@ -444,8 +450,12 @@ class FluidSlider : View {
         val sp3 = getVector(angle2b - pi2, r2).toList().map { it.toFloat() }
         val sp4 = getVector(angle1b + pi2, r1).toList().map { it.toFloat() }
 
-        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(Math.min(rectBar.right - barInnerOffset, l[0]), l[1]) }
-        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(Math.max(barInnerOffset, l[0]), l[1]) }
+        // move bottom point to bar top border
+        val yOffsetRatio = Math.min(1f, Math.max(0f,topBorder - circle2.top) /riseDistance)
+        val yOffset = (Math.abs(topBorder - p1a[1]) * yOffsetRatio).toFloat() - 1
+
+        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(Math.min(rightBorder, l[0]), l[1] - yOffset) }
+        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(Math.max(leftBorder, l[0]), l[1] - yOffset) }
         val fp2a = p2a.map { it.toFloat() }
         val fp2b = p2b.map { it.toFloat() }
 
@@ -457,7 +467,7 @@ class FluidSlider : View {
         path.lineTo(fp1a[0], fp1a[1])
         path.close()
 
-        canvas.drawPath(pathMetaball, paint)
+        canvas.drawPath(path, paint)
         canvas.drawOval(circle2, paint)
     }
 
