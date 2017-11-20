@@ -48,7 +48,7 @@ Here are the attributes you can specify through XML or related setters:
 * `start_text` - Start (left) text of slider.
 * `end_text` - End (right) text of slider.
 * `text_size` - Text size.
-* `duration` - Duration of "bubble" rise.
+* `duration` - Duration of "bubble" rise in milliseconds.
 * `initial_position` - Initial positon of "bubble" in range form `0.0` to `1.0`.
 * `size` - Height of slider. Can be `small` (40dp) and `normal` (56dp).
 

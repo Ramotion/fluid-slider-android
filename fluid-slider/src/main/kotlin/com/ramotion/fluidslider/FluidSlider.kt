@@ -85,35 +85,79 @@ class FluidSlider : View {
     private var maxMovement = 0f
     private var touchX: Float? = null
 
+    /**
+     * Duration of "bubble" rise in milliseconds.
+     */
     var duration = ANIMATION_DURATION.toLong()
         set(value) { field = Math.abs(value) }
 
-    var colorLabelText = COLOR_LABEL_TEXT
+    /**
+     * Color of text inside "bubble".
+     */
+    var colorBubbleText = COLOR_LABEL_TEXT
+
+    /**
+     * Color of `start` and `end` texts of slider.
+     */
     var colorBarText = COLOR_BAR_TEXT
 
+    /**
+     * Color of slider.
+     */
     var colorBar: Int
         get() = paintBar.color
         set(value) { paintBar.color = value }
 
-    var colorLabel: Int
+    /**
+     * Color of circle "bubble" inside bar.
+     */
+    var colorBubble: Int
         get() = paintLabel.color
         set(value) { paintLabel.color = value }
 
+    /**
+     * Text size.
+     */
     var textSize: Float
         get() = paintText.textSize
         set(value) { paintText.textSize = value }
 
-    var positionText: String? = null
+    /**
+     * Bubble text.
+     */
+    var bubbleText: String? = null
+
+    /**
+     * Start (left) text of slider.
+     */
     var startText: String? = TEXT_START
+
+    /**
+     * End (right) text of slider.
+     */
     var endText: String? = TEXT_END
 
+    /**
+     * Initial positon of "bubble" in range form `0.0` to `1.0`.
+     */
     var position = INITIAL_POSITION
         set(value) {
             field = Math.max(0f, Math.min(1f, value))
         }
 
-    var positionListener: ((Float) -> Unit)? = null // TODO: check in Java
+    /**
+     * Current position tracker. Receive current position, in range from `0.0f` to `1.0f`.
+     */
+    var positionListener: ((Float) -> Unit)? = null
+
+    /**
+     * Called on slider touch.
+     */
     var beginTrackingListener: (() -> Unit)? = null
+
+    /**
+     * Called when slider is released.
+     */
     var endTrackingListener: (() -> Unit)? = null
 
     @SuppressLint("NewApi")
@@ -217,9 +261,9 @@ class FluidSlider : View {
             val a = context.theme.obtainStyledAttributes(attrs, R.styleable.FluidSlider, defStyleAttr, 0)
             try {
                 colorBar = a.getColor(R.styleable.FluidSlider_bar_color, COLOR_BAR)
-                colorLabel = a.getColor(R.styleable.FluidSlider_bubble_color, COLOR_LABEL)
+                colorBubble = a.getColor(R.styleable.FluidSlider_bubble_color, COLOR_LABEL)
                 colorBarText = a.getColor(R.styleable.FluidSlider_bar_text_color, COLOR_BAR_TEXT)
-                colorLabelText = a.getColor(R.styleable.FluidSlider_bubble_text_color, COLOR_LABEL_TEXT)
+                colorBubbleText = a.getColor(R.styleable.FluidSlider_bubble_text_color, COLOR_LABEL_TEXT)
 
                 position = Math.max(0f, Math.min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
                 textSize = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
@@ -235,7 +279,7 @@ class FluidSlider : View {
             }
         } else {
             colorBar = COLOR_BAR
-            colorLabel = COLOR_LABEL
+            colorBubble = COLOR_LABEL
             textSize = TEXT_SIZE * density
             barHeight = BAR_HEIGHT_NORMAL * density
         }
@@ -260,7 +304,7 @@ class FluidSlider : View {
     override fun onSaveInstanceState(): Parcelable {
         return State(super.onSaveInstanceState(),
                 position, startText, endText, textSize,
-                colorLabel, colorBar, colorBarText, colorLabelText, duration)
+                colorBubble, colorBar, colorBarText, colorBubbleText, duration)
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
@@ -270,10 +314,10 @@ class FluidSlider : View {
             startText = state.startText
             endText = state.endText
             textSize = state.textSize
-            colorLabel = state.colorLabel
+            colorBubble = state.colorLabel
             colorBar = state.colorBar
             colorBarText = state.colorBarText
-            colorLabelText = state.colorLabelText
+            colorBubbleText = state.colorLabelText
             duration = state.duration
         }
     }
@@ -321,8 +365,8 @@ class FluidSlider : View {
         // Draw label and text
         canvas.drawOval(rectLabel, paintLabel)
 
-        val text = positionText ?: (position * 100).toInt().toString()
-        drawText(canvas, paintText, text, Paint.Align.CENTER, colorLabelText, 0f, rectLabel, rectText)
+        val text = bubbleText ?: (position * 100).toInt().toString()
+        drawText(canvas, paintText, text, Paint.Align.CENTER, colorBubbleText, 0f, rectLabel, rectText)
     }
 
     override fun performClick(): Boolean {
