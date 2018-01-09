@@ -25,14 +25,16 @@
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="42dp"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="8dp"
         android:ellipsize="end"
+        android:gravity="bottom"
         android:text="@string/long_text"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/fluidSlider"
         app:layout_constraintEnd_toEndOf="@+id/fluidSlider"
         app:layout_constraintStart_toStartOf="@+id/fluidSlider"
-        app:layout_constraintTop_toTopOf="@+id/fluidSlider"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>
