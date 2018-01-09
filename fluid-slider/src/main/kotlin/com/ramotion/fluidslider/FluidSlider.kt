@@ -28,15 +28,16 @@ class FluidSlider : View {
         val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
 
         val TOP_CIRCLE_DIAMETER = 1
-        val BOTTOM_CIRCLE_DIAMETER = 3.5f
+        val BOTTOM_CIRCLE_DIAMETER = 25.0f
         val TOUCH_CIRCLE_DIAMETER = 1
         val LABEL_CIRCLE_DIAMETER = 10
 
         val ANIMATION_DURATION = 400
         val TOP_SPREAD_FACTOR = 0.4
-        val BOTTOM_SPREAD_FACTOR = 0.25
+        val BOTTOM_START_SPREAD_FACTOR = 0.25
+        val BOTTOM_END_SPREAD_FACTOR = 0.1
         val METABALL_HANDLER_FACTOR = 2.4
-        val METABALL_MAX_DISTANCE = 3.0
+        val METABALL_MAX_DISTANCE = 15.0
         val METABALL_RISE_DISTANCE = 1.1f
 
         val TEXT_SIZE = 12
@@ -358,9 +359,7 @@ class FluidSlider : View {
         val x = barInnerOffset + touchRectDiameter / 2 + maxMovement * position
         offsetRectToPosition(x, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
-        drawMetaball(canvas, paintBar,
-                pathMetaball, rectBottomCircle, rectTopCircle,
-                barInnerOffset, rectBar.right - barInnerOffset, rectBar.top)
+        drawMetaball(canvas, paintBar, pathMetaball, rectBottomCircle, rectTopCircle, rectBar.top)
 
         // Draw label and text
         canvas.drawOval(rectLabel, paintLabel)
@@ -432,11 +431,12 @@ class FluidSlider : View {
 
     private fun drawMetaball(canvas: Canvas, paint: Paint,
                              path: Path, circle1: RectF, circle2: RectF,
-                             leftBorder: Float, rightBorder: Float, topBorder: Float,
+                             topBorder: Float,
                              riseDistance: Float = metaballRiseDistance,
                              maxDistance: Double = metaballMaxDistance,
                              topSpreadFactor: Double = TOP_SPREAD_FACTOR,
-                             bottomSpreadFactor: Double = BOTTOM_SPREAD_FACTOR,
+                             bottomStartSpreadFactor: Double = BOTTOM_START_SPREAD_FACTOR,
+                             botomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
                              handleRate: Double = METABALL_HANDLER_FACTOR)
     {
         val radius1 = circle1.width() / 2.0
@@ -453,6 +453,8 @@ class FluidSlider : View {
             return
         }
 
+        val riseRatio = Math.min(1f, Math.max(0f,topBorder - circle2.top) /riseDistance)
+
         val u1: Double
         val u2: Double
         if (d < radius1 + radius2) { // case circles are overlapping
@@ -467,6 +469,9 @@ class FluidSlider : View {
 
         val centerXMin = (circle2.centerX() - circle1.centerX()).toDouble()
         val centerYMin = (circle2.centerY() - circle1.centerY()).toDouble()
+
+        val bottomSpreadDiff = bottomStartSpreadFactor - botomEndSpreadFactor
+        val bottomSpreadFactor = bottomStartSpreadFactor - bottomSpreadDiff * riseRatio
 
         val angle1 = Math.atan2(centerYMin, centerXMin)
         val angle2 = Math.acos((radius1 - radius2) / d)
@@ -496,20 +501,21 @@ class FluidSlider : View {
         val sp4 = getVector(angle1b + pi2, r1).toList().map { it.toFloat() }
 
         // move bottom point to bar top border
-        val yOffsetRatio = Math.min(1f, Math.max(0f,topBorder - circle2.top) /riseDistance)
-        val yOffset = (Math.abs(topBorder - p1a[1]) * yOffsetRatio).toFloat() - 1
+        val yOffset = (Math.abs(topBorder - p1a[1]) * riseRatio).toFloat() - 1
 
-        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(Math.min(rightBorder, l[0]), l[1] - yOffset) }
-        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(Math.max(leftBorder, l[0]), l[1] - yOffset) }
+        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
+        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
         val fp2a = p2a.map { it.toFloat() }
         val fp2b = p2b.map { it.toFloat() }
 
         path.reset()
-        path.moveTo(fp1a[0], fp1a[1])
+        path.moveTo(fp1a[0], fp1a[1] + barCornerRadius)
+        path.lineTo(fp1a[0], fp1a[1])
         path.cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
+        path.lineTo(circle2.centerX(), circle2.centerY())
         path.lineTo(fp2b[0], fp2b[1])
         path.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
-        path.lineTo(fp1a[0], fp1a[1])
+        path.lineTo(fp1b[0], fp1b[1] + barCornerRadius)
         path.close()
 
         canvas.drawPath(path, paint)
