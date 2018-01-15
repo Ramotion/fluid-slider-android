@@ -1,3 +1,4 @@
+![animation](./Fluid-slider.gif)
 ## Requirements
 ​
 - Android 4.1 Jelly Bean (API lvl 16) or greater
