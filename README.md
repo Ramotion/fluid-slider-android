@@ -1,4 +1,4 @@
-![header(./header.png)](https://ramotion.com?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-logo)
+[![header](./header.png)](https://ramotion.com?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-logo)
 ![animation](./Fluid-slider.gif)
 
 # Fluid Slider for Android
