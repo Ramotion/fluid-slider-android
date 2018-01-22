@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FluidSlider">
+        <attr name="bar_color" format="color"/>
+        <attr name="bubble_color" format="color"/>
+        <attr name="bar_text_color" format="color"/>
+        <attr name="bubble_text_color" format="color"/>
+        <attr name="start_text" format="string"/>
+        <attr name="end_text" format="string"/>
+        <attr name="text_size" format="dimension"/>
+        <attr name="duration" format="integer"/>
+        <!-- Initial position in range from 0.0 to 1.0 -->
+        <attr name="initial_position" format="float"/>
+        <attr name="size" format="enum">
+            <enum name="small" value="0"/>
+            <enum name="normal" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>
