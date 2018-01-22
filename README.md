@@ -20,7 +20,10 @@ libraryDependencies += "???"
 Maven:
 ```xml
 <dependency>
-    ???
+  <groupId>com.ramotion.fluidslider</groupId>
+  <artifactId>fluid-slider</artifactId>
+  <version>0.1.0</version>
+  <type>aar</type>
 </dependency>
 ```
 
