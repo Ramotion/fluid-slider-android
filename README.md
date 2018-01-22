@@ -7,14 +7,16 @@
 
 Inspired by [Virgil Pana](https://dribbble.com/virgilpana) [shot](https://dribbble.com/shots/3868232-Fluid-Slider)
 
-**Looking for developers for your project?**
+**Looking for developers for your project?**<br>
+This project is maintained by Ramotion, Inc. We specialize in the designing and coding of custom UI for Mobile Apps and Websites.
 
-<a href="https://ramotion.com?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-contact-us/#Get_in_Touch" > <img src="https://github.com/Ramotion/navigation-stack/raw/master/contact_our_team@2x.png" width="150" height="30"></a>
+<a href="https://ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-contact-us/#Get_in_Touch">
+<img src="https://github.com/ramotion/gliding-collection/raw/master/contact_our_team@2x.png" width="187" height="34"></a> <br>
 
 The [Android mockup](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android) available [here](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android).
 
 ## Requirements
-​
+
 - Android 4.1 Jelly Bean (API lvl 16) or greater
 - Your favorite IDE
 
@@ -85,7 +87,6 @@ Try our UI components in our mobile app. Contact us if interested.
 <br>
 <br>
 
-## Follow us
-
+Follow us for the latest updates:<br>
 [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=https://github.com/Ramotion/fluid-slider-android)
 [![Twitter Follow](https://img.shields.io/twitter/follow/ramotion.svg?style=social)](https://twitter.com/ramotion)
