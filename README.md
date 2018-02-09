@@ -30,11 +30,11 @@ Just download the package from [here]() and add it to your project classpath, or
 
 Gradle:
 ```groovy
-compile '???'
+compile 'com.ramotion.fluidslider'
 ```
 SBT:
 ```scala
-libraryDependencies += "???"
+libraryDependencies += "com.ramotion.fluidslider"
 ```
 Maven:
 ```xml
