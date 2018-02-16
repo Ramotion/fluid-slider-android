@@ -60,6 +60,19 @@ slider.beginTrackingListener = { /* action on slider touched */ }
 slider.endTrackingListener = { /* action on slider released */ }
 ```
 
+Here is simple example, how to change `FluidSlider` range.
+```kotlin
+val max = 45
+val min = 10
+val total = max - min
+
+val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
+slider.position = 0.3f
+slider.startText ="$min"
+slider.endText = "$max"
+```
+
 Here are the attributes you can specify through XML or related setters:
 * `bar_color` - Color of slider.
 * `bubble_color` - Color of circle "bubble" inside bar.
