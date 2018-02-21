@@ -14,7 +14,7 @@ Inspired by [Virgil Pana](https://dribbble.com/virgilpana) [shot](https://dribbb
 **Looking for developers for your project?**<br>
 This project is maintained by Ramotion, Inc. We specialize in the designing and coding of custom UI for Mobile Apps and Websites.
 
-<a href="https://ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-contact-us/#Get_in_Touch">
+<a href="https://dev.ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-contact-us">
 <img src="https://github.com/ramotion/gliding-collection/raw/master/contact_our_team@2x.png" width="187" height="34"></a> <br>
 
 The [Android mockup](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android) available [here](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android).
@@ -98,7 +98,7 @@ Try our UI components in our mobile app. Contact us if interested.
 
 <a href="https://play.google.com/store/apps/details?id=com.ramotion.showroom" >
 <img src="https://raw.githubusercontent.com/Ramotion/react-native-circle-menu/master/google_play@2x.png" width="104" height="34"></a>
-<a href="https://ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-contact-us/#Get_in_Touch">
+<a href="https://dev.ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-contact-us">
 <img src="https://github.com/ramotion/gliding-collection/raw/master/contact_our_team@2x.png" width="187" height="34"></a>
 <br>
 <br>
