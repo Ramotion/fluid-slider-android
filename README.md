@@ -26,22 +26,22 @@ The [Android mockup](https://store.ramotion.com/product/samsung-galaxy-s8-mockup
 
 ## Installation
 ​
-Just download the package from [here](http://central.maven.org/maven2/com/ramotion/fluidslider/fluid-slider/0.1.0/fluid-slider-0.1.0.aar) and add it to your project classpath, or just use the maven repo:
+Just download the package from [here](http://central.maven.org/maven2/com/ramotion/fluidslider/fluid-slider/0.1.1/fluid-slider-0.1.1.aar) and add it to your project classpath, or just use the maven repo:
 
 Gradle:
 ```groovy
-compile 'com.ramotion.fluidslider:fluid-slider:0.1.0'
+compile 'com.ramotion.fluidslider:fluid-slider:0.1.1'
 ```
 SBT:
 ```scala
-libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.1.0"
+libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.1.1"
 ```
 Maven:
 ```xml
 <dependency>
   <groupId>com.ramotion.fluidslider</groupId>
   <artifactId>fluid-slider</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <type>aar</type>
 </dependency>
 ```
