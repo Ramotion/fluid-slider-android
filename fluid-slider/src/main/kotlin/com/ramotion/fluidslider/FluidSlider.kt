@@ -144,6 +144,7 @@ class FluidSlider : View {
     var position = INITIAL_POSITION
         set(value) {
             field = Math.max(0f, Math.min(1f, value))
+            positionListener?.invoke(field)
         }
 
     /**
@@ -393,7 +394,6 @@ class FluidSlider : View {
             touchX?.let {
                 touchX = event.x
                 val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
-                if (newPos != position) positionListener?.invoke(position)
                 position = newPos
                 invalidate()
                 true

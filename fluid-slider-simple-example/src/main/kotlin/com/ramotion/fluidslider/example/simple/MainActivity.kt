@@ -14,7 +14,16 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
 
+        val max = 45
+        val min = 10
+        val total = max - min
+
         val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+        slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
+        slider.position = 0.3f
+        slider.startText ="$min"
+        slider.endText = "$max"
+
         slider.beginTrackingListener = { textView.visibility = View.INVISIBLE }
         slider.endTrackingListener = { textView.visibility = View.VISIBLE }
     }

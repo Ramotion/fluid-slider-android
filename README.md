@@ -1,29 +1,50 @@
-![header](./header.png)
+[![header](./header.png)](https://ramotion.com?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-logo)
 ![animation](./Fluid-slider.gif)
+
+# Fluid Slider for Android
+[![Twitter](https://img.shields.io/badge/Twitter-@Ramotion-blue.svg?style=flat)](http://twitter.com/Ramotion)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/92bd2e49f7e543cd8748c670b9e52ca7)](https://www.codacy.com/app/dvg4000/fluid-slider-android?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Ramotion/fluid-slider-android&amp;utm_campaign=Badge_Grade)
+
+Inspired by [Virgil Pana](https://dribbble.com/virgilpana) [shot](https://dribbble.com/shots/3868232-Fluid-Slider)
+
+# Check this library on other platforms:
+<a href="https://github.com/Ramotion/fluid-slider">
+<img src="https://github.com/ramotion/navigation-stack/raw/master/Swift@2x.png" width="178" height="81"></a>
+
+**Looking for developers for your project?**<br>
+This project is maintained by Ramotion, Inc. We specialize in the designing and coding of custom UI for Mobile Apps and Websites.
+
+<a href="https://dev.ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-contact-us">
+<img src="https://github.com/ramotion/gliding-collection/raw/master/contact_our_team@2x.png" width="187" height="34"></a> <br>
+
+The [Android mockup](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android) available [here](https://store.ramotion.com/product/samsung-galaxy-s8-mockups?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android).
+
 ## Requirements
-​
+
 - Android 4.1 Jelly Bean (API lvl 16) or greater
 - Your favorite IDE
 
 ## Installation
 ​
-Just download the package from [here]() and add it to your project classpath, or just use the maven repo:
+Just download the package from [here](http://central.maven.org/maven2/com/ramotion/fluidslider/fluid-slider/0.1.1/fluid-slider-0.1.1.aar) and add it to your project classpath, or just use the maven repo:
 
 Gradle:
 ```groovy
-compile '???'
+compile 'com.ramotion.fluidslider:fluid-slider:0.1.1'
 ```
 SBT:
 ```scala
-libraryDependencies += "???"
+libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.1.1"
 ```
 Maven:
 ```xml
 <dependency>
-    ???
+  <groupId>com.ramotion.fluidslider</groupId>
+  <artifactId>fluid-slider</artifactId>
+  <version>0.1.1</version>
+  <type>aar</type>
 </dependency>
 ```
-
 
 ## Basic usage
 
@@ -42,6 +63,19 @@ slider.beginTrackingListener = { /* action on slider touched */ }
 slider.endTrackingListener = { /* action on slider released */ }
 ```
 
+Here is simple example, how to change `FluidSlider` range.
+```kotlin
+val max = 45
+val min = 10
+val total = max - min
+
+val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
+slider.position = 0.3f
+slider.startText ="$min"
+slider.endText = "$max"
+```
+
 Here are the attributes you can specify through XML or related setters:
 * `bar_color` - Color of slider.
 * `bubble_color` - Color of circle "bubble" inside bar.
@@ -56,5 +90,19 @@ Here are the attributes you can specify through XML or related setters:
 
 ## License
 ​
-CircleMenu for Android is released under the MIT license.
+Fluid Slider for Android is released under the MIT license.
 See [LICENSE](./LICENSE) for details.
+
+# Get the Showroom App for Android to give it a try
+Try our UI components in our mobile app. Contact us if interested.
+
+<a href="https://play.google.com/store/apps/details?id=com.ramotion.showroom" >
+<img src="https://raw.githubusercontent.com/Ramotion/react-native-circle-menu/master/google_play@2x.png" width="104" height="34"></a>
+<a href="https://dev.ramotion.com/?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-contact-us">
+<img src="https://github.com/ramotion/gliding-collection/raw/master/contact_our_team@2x.png" width="187" height="34"></a>
+<br>
+<br>
+
+Follow us for the latest updates:<br>
+<a href="https://github.com/RamotionDev" >
+<img src="https://i.imgur.com/ziSqeSo.png/" width="156" height="28"></a>

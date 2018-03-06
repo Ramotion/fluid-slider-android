@@ -1,41 +1,80 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'signing'
+apply plugin: 'com.bmuschko.nexus'
+
+group = 'com.ramotion.fluidslider'
+version = '0.1.1'
 
 android {
     compileSdkVersion 26
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
-
+//    buildToolsVersion '26.0.3'
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+
 repositories {
     mavenCentral()
+}
+
+modifyPom {
+    project {
+        name 'Fluid Slider for Android'
+        description 'A slider widget with a popup bubble displaying the precise value selected. http://ramotion.com'
+        url 'https://github.com/Ramotion/fluid-slider-android'
+        inceptionYear '2017'
+
+        scm {
+            url 'https://github.com/Ramotion/fluid-slider-android'
+            connection 'scm:git@github.com:Ramotion/fluid-slider-android.git'
+            developerConnection 'scm:git@github.com:Ramotion/fluid-slider-android.git'
+        }
+
+        licenses {
+            license {
+                name 'The MIT License (MIT)'
+                url 'https://opensource.org/licenses/mit-license.php'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'dvg4000'
+                name 'Dmitry Grishechkin'
+                email 'dvgrishechkin@yandex.ru'
+            }
+        }
+    }
+}
+
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
 }
