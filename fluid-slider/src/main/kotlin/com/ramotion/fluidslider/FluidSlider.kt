@@ -14,43 +14,43 @@ import android.view.ViewOutlineProvider
 import android.view.animation.OvershootInterpolator
 
 
-class FluidSlider : View {
+class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
 
     private companion object {
-        val BAR_HEIGHT_NORMAL = 56
-        val BAR_HEIGHT_SMALL = 40
+        const val BAR_HEIGHT_NORMAL = 56
+        const val BAR_HEIGHT_SMALL = 40
 
-        val BAR_CORNER_RADIUS = 2
-        val BAR_VERTICAL_OFFSET = 1.5f
-        val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
+        const val BAR_CORNER_RADIUS = 2
+        const val BAR_VERTICAL_OFFSET = 1.5f
+        const val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
 
-        val SLIDER_WIDTH = 4
-        val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
+        const val SLIDER_WIDTH = 4
+        const val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
 
-        val TOP_CIRCLE_DIAMETER = 1
-        val BOTTOM_CIRCLE_DIAMETER = 25.0f
-        val TOUCH_CIRCLE_DIAMETER = 1
-        val LABEL_CIRCLE_DIAMETER = 10
+        const val TOP_CIRCLE_DIAMETER = 1
+        const val BOTTOM_CIRCLE_DIAMETER = 25.0f
+        const val TOUCH_CIRCLE_DIAMETER = 1
+        const val LABEL_CIRCLE_DIAMETER = 10
 
-        val ANIMATION_DURATION = 400
-        val TOP_SPREAD_FACTOR = 0.4
-        val BOTTOM_START_SPREAD_FACTOR = 0.25
-        val BOTTOM_END_SPREAD_FACTOR = 0.1
-        val METABALL_HANDLER_FACTOR = 2.4
-        val METABALL_MAX_DISTANCE = 15.0
-        val METABALL_RISE_DISTANCE = 1.1f
+        const val ANIMATION_DURATION = 400
+        const val TOP_SPREAD_FACTOR = 0.4
+        const val BOTTOM_START_SPREAD_FACTOR = 0.25
+        const val BOTTOM_END_SPREAD_FACTOR = 0.1
+        const val METABALL_HANDLER_FACTOR = 2.4
+        const val METABALL_MAX_DISTANCE = 15.0
+        const val METABALL_RISE_DISTANCE = 1.1f
 
-        val TEXT_SIZE = 12
-        val TEXT_OFFSET = 8
-        val TEXT_START = "0"
-        val TEXT_END = "100"
+        const val TEXT_SIZE = 12
+        const val TEXT_OFFSET = 8
+        const val TEXT_START = "0"
+        const val TEXT_END = "100"
 
-        val COLOR_BAR = 0xff6168e7.toInt()
-        val COLOR_LABEL = Color.WHITE
-        val COLOR_LABEL_TEXT = Color.BLACK
-        val COLOR_BAR_TEXT = Color.WHITE
+        const val COLOR_BAR = 0xff6168e7.toInt()
+        const val COLOR_LABEL = Color.WHITE
+        const val COLOR_LABEL_TEXT = Color.BLACK
+        const val COLOR_BAR_TEXT = Color.WHITE
 
-        val INITIAL_POSITION = 0.5f
+        const val INITIAL_POSITION = 0.5f
     }
 
     private val barHeight: Float
@@ -90,7 +90,9 @@ class FluidSlider : View {
      * Duration of "bubble" rise in milliseconds.
      */
     var duration = ANIMATION_DURATION.toLong()
-        set(value) { field = Math.abs(value) }
+        set(value) {
+            field = Math.abs(value)
+        }
 
     /**
      * Color of text inside "bubble".
@@ -107,21 +109,27 @@ class FluidSlider : View {
      */
     var colorBar: Int
         get() = paintBar.color
-        set(value) { paintBar.color = value }
+        set(value) {
+            paintBar.color = value
+        }
 
     /**
      * Color of circle "bubble" inside bar.
      */
     var colorBubble: Int
         get() = paintLabel.color
-        set(value) { paintLabel.color = value }
+        set(value) {
+            paintLabel.color = value
+        }
 
     /**
      * Text size.
      */
     var textSize: Float
         get() = paintText.textSize
-        set(value) { paintText.textSize = value }
+        set(value) {
+            paintText.textSize = value
+        }
 
     /**
      * Bubble text.
@@ -163,7 +171,7 @@ class FluidSlider : View {
     var endTrackingListener: (() -> Unit)? = null
 
     @SuppressLint("NewApi")
-    inner class OutlineProvider: ViewOutlineProvider() {
+    inner class OutlineProvider : ViewOutlineProvider() {
         override fun getOutline(v: View?, outline: Outline?) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val rect = Rect(rectBar.left.toInt(), rectBar.top.toInt(), rectBar.right.toInt(), rectBar.bottom.toInt())
@@ -172,9 +180,10 @@ class FluidSlider : View {
         }
     }
 
-    class State: BaseSavedState {
+    class State : BaseSavedState {
         companion object {
-            @JvmField @Suppress("unused")
+            @JvmField
+            @Suppress("unused")
             val CREATOR = object : Parcelable.Creator<State> {
                 override fun createFromParcel(parcel: Parcel): State = State(parcel)
                 override fun newArray(size: Int): Array<State?> = arrayOfNulls(size)
@@ -192,16 +201,15 @@ class FluidSlider : View {
         val duration: Long
 
         constructor(superState: Parcelable,
-                            position: Float,
-                            startText: String?,
-                            endText: String?,
-                            textSize: Float,
-                            colorLabel: Int,
-                            colorBar: Int,
-                            colorBarText: Int,
-                            colorLabelText: Int,
-                            duration: Long) : super(superState)
-        {
+                    position: Float,
+                    startText: String?,
+                    endText: String?,
+                    textSize: Float,
+                    colorLabel: Int,
+                    colorBar: Int,
+                    colorBarText: Int,
+                    colorLabelText: Int,
+                    duration: Long) : super(superState) {
             this.position = position
             this.startText = startText
             this.endText = endText
@@ -240,11 +248,7 @@ class FluidSlider : View {
         override fun describeContents(): Int = 0
     }
 
-    constructor(context: Context) : this(context, null, 0)
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             outlineProvider = OutlineProvider()
         }
@@ -413,7 +417,7 @@ class FluidSlider : View {
 
     private fun offsetRectToPosition(position: Float, vararg rects: RectF) {
         for (rect in rects) {
-            rect.offsetTo(position - rect.width()/ 2f, rect.top)
+            rect.offsetTo(position - rect.width() / 2f, rect.top)
         }
     }
 
@@ -437,8 +441,7 @@ class FluidSlider : View {
                              topSpreadFactor: Double = TOP_SPREAD_FACTOR,
                              bottomStartSpreadFactor: Double = BOTTOM_START_SPREAD_FACTOR,
                              botomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
-                             handleRate: Double = METABALL_HANDLER_FACTOR)
-    {
+                             handleRate: Double = METABALL_HANDLER_FACTOR) {
         val radius1 = circle1.width() / 2.0
         val radius2 = circle2.width() / 2.0
 
@@ -453,7 +456,7 @@ class FluidSlider : View {
             return
         }
 
-        val riseRatio = Math.min(1f, Math.max(0f,topBorder - circle2.top) /riseDistance)
+        val riseRatio = Math.min(1f, Math.max(0f, topBorder - circle2.top) / riseDistance)
 
         val u1: Double
         val u2: Double
@@ -524,8 +527,7 @@ class FluidSlider : View {
 
     private fun drawText(canvas: Canvas, paint: Paint,
                          text: String, align: Paint.Align, color: Int, offset: Float,
-                         holderRect: RectF, textRect: Rect)
-    {
+                         holderRect: RectF, textRect: Rect) {
         paint.color = color
         paint.textAlign = align
         paint.getTextBounds(text, 0, text.length, textRect)
@@ -540,7 +542,7 @@ class FluidSlider : View {
 
     private fun showLabel(dinstace: Float) {
         val top = barVerticalOffset - dinstace
-        val labelVOffset =(topCircleDiameter - labelRectDiameter) / 2f
+        val labelVOffset = (topCircleDiameter - labelRectDiameter) / 2f
 
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, top)
         animation.addUpdateListener {
@@ -554,7 +556,7 @@ class FluidSlider : View {
     }
 
     private fun hideLabel() {
-        val labelVOffset =(topCircleDiameter - labelRectDiameter) / 2f
+        val labelVOffset = (topCircleDiameter - labelRectDiameter) / 2f
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, barVerticalOffset)
         animation.addUpdateListener {
             rectTopCircle.offsetTo(rectTopCircle.left, it.animatedValue as Float)
