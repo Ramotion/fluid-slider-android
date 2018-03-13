@@ -147,7 +147,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
     var endText: String? = TEXT_END
 
     /**
-     * Initial positon of "bubble" in range form `0.0` to `1.0`.
+     * Initial position of "bubble" in range form `0.0` to `1.0`.
      */
     var position = INITIAL_POSITION
         set(value) {
@@ -397,7 +397,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         MotionEvent.ACTION_MOVE -> {
             touchX?.let {
                 touchX = event.x
-                val newPos = Math.max(0f, Math.min(1f, position + (touchX!! - it) / maxMovement))
+                val newPos = Math.max(0f, Math.min(1f, position + (event.x - it) / maxMovement))
                 position = newPos
                 invalidate()
                 true
@@ -440,7 +440,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                              maxDistance: Double = metaballMaxDistance,
                              topSpreadFactor: Double = TOP_SPREAD_FACTOR,
                              bottomStartSpreadFactor: Double = BOTTOM_START_SPREAD_FACTOR,
-                             botomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
+                             bottomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
                              handleRate: Double = METABALL_HANDLER_FACTOR) {
         val radius1 = circle1.width() / 2.0
         val radius2 = circle2.width() / 2.0
@@ -473,7 +473,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val centerXMin = (circle2.centerX() - circle1.centerX()).toDouble()
         val centerYMin = (circle2.centerY() - circle1.centerY()).toDouble()
 
-        val bottomSpreadDiff = bottomStartSpreadFactor - botomEndSpreadFactor
+        val bottomSpreadDiff = bottomStartSpreadFactor - bottomEndSpreadFactor
         val bottomSpreadFactor = bottomStartSpreadFactor - bottomSpreadDiff * riseRatio
 
         val angle1 = Math.atan2(centerYMin, centerXMin)
@@ -511,18 +511,22 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val fp2a = p2a.map { it.toFloat() }
         val fp2b = p2b.map { it.toFloat() }
 
-        path.reset()
-        path.moveTo(fp1a[0], fp1a[1] + barCornerRadius)
-        path.lineTo(fp1a[0], fp1a[1])
-        path.cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
-        path.lineTo(circle2.centerX(), circle2.centerY())
-        path.lineTo(fp2b[0], fp2b[1])
-        path.cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
-        path.lineTo(fp1b[0], fp1b[1] + barCornerRadius)
-        path.close()
+        with(path) {
+            reset()
+            moveTo(fp1a[0], fp1a[1] + barCornerRadius)
+            lineTo(fp1a[0], fp1a[1])
+            cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
+            lineTo(circle2.centerX(), circle2.centerY())
+            lineTo(fp2b[0], fp2b[1])
+            cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
+            lineTo(fp1b[0], fp1b[1] + barCornerRadius)
+            close()
+        }
 
-        canvas.drawPath(path, paint)
-        canvas.drawOval(circle2, paint)
+        with(canvas) {
+            drawPath(path, paint)
+            drawOval(circle2, paint)
+        }
     }
 
     private fun drawText(canvas: Canvas, paint: Paint,
@@ -540,14 +544,15 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         canvas.drawText(text, 0, text.length, x, y, paint)
     }
 
-    private fun showLabel(dinstace: Float) {
-        val top = barVerticalOffset - dinstace
+    private fun showLabel(dinstance: Float) {
+        val top = barVerticalOffset - dinstance
         val labelVOffset = (topCircleDiameter - labelRectDiameter) / 2f
 
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, top)
         animation.addUpdateListener {
-            rectTopCircle.offsetTo(rectTopCircle.left, it.animatedValue as Float)
-            rectLabel.offsetTo(rectLabel.left, it.animatedValue as Float + labelVOffset)
+            val value = it.animatedValue as Float
+            rectTopCircle.offsetTo(rectTopCircle.left, value)
+            rectLabel.offsetTo(rectLabel.left, value + labelVOffset)
             invalidate()
         }
         animation.duration = duration
@@ -559,8 +564,9 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val labelVOffset = (topCircleDiameter - labelRectDiameter) / 2f
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, barVerticalOffset)
         animation.addUpdateListener {
-            rectTopCircle.offsetTo(rectTopCircle.left, it.animatedValue as Float)
-            rectLabel.offsetTo(rectLabel.left, it.animatedValue as Float + labelVOffset)
+            val value = it.animatedValue as Float
+            rectTopCircle.offsetTo(rectTopCircle.left, value)
+            rectLabel.offsetTo(rectLabel.left, value + labelVOffset)
             invalidate()
         }
         animation.duration = duration
