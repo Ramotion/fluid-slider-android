@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.OvershootInterpolator
+import kotlin.math.*
 
 
 class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
@@ -91,7 +92,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     var duration = ANIMATION_DURATION.toLong()
         set(value) {
-            field = Math.abs(value)
+            field = abs(value)
         }
 
     /**
@@ -151,7 +152,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     var position = INITIAL_POSITION
         set(value) {
-            field = Math.max(0f, Math.min(1f, value))
+            field = max(0f, min(1f, value))
             positionListener?.invoke(field)
         }
 
@@ -271,9 +272,9 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 colorBarText = a.getColor(R.styleable.FluidSlider_bar_text_color, COLOR_BAR_TEXT)
                 colorBubbleText = a.getColor(R.styleable.FluidSlider_bubble_text_color, COLOR_LABEL_TEXT)
 
-                position = Math.max(0f, Math.min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
+                position = max(0f, min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
                 textSize = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
-                duration = Math.abs(a.getInteger(R.styleable.FluidSlider_duration, ANIMATION_DURATION)).toLong()
+                duration = abs(a.getInteger(R.styleable.FluidSlider_duration, ANIMATION_DURATION)).toLong()
 
                 a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
                 a.getString(R.styleable.FluidSlider_end_text)?.also { endText = it }
@@ -382,7 +383,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             val y = event.y
             if (rectBar.contains(x, y)) {
                 if (!rectTouch.contains(x, y)) {
-                    position = Math.max(0f, Math.min(1f, (x - rectTouch.width() / 2) / maxMovement))
+                    position = max(0f, min(1f, (x - rectTouch.width() / 2) / maxMovement))
                 }
                 touchX = x
                 beginTrackingListener?.invoke()
@@ -395,7 +396,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         MotionEvent.ACTION_MOVE -> {
             touchX?.let {
                 touchX = event.x
-                val newPos = Math.max(0f, Math.min(1f, position + (event.x - it) / maxMovement))
+                val newPos = max(0f, min(1f, position + (event.x - it) / maxMovement))
                 position = newPos
                 invalidate()
                 true
@@ -420,15 +421,15 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     private fun getVector(radians: Double, length: Double): Pair<Double, Double> {
-        val x = (Math.cos(radians) * length)
-        val y = (Math.sin(radians) * length)
+        val x = (cos(radians) * length)
+        val y = (sin(radians) * length)
         return x to y
     }
 
     private fun getVectorLength(p1: Pair<Double, Double>, p2: Pair<Double, Double>): Double {
         val x = p1.first - p2.first
         val y = p1.second - p2.second
-        return Math.sqrt(x * x + y * y)
+        return sqrt(x * x + y * y)
     }
 
     private fun drawMetaball(canvas: Canvas,
@@ -454,18 +455,18 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val d = getVectorLength(
                 circle1.centerX().toDouble() to circle1.centerY().toDouble(),
                 circle2.centerX().toDouble() to circle2.centerY().toDouble())
-        if (d > maxDistance || d <= Math.abs(radius1 - radius2)) {
+        if (d > maxDistance || d <= abs(radius1 - radius2)) {
             return
         }
 
-        val riseRatio = Math.min(1f, Math.max(0f, topBorder - circle2.top) / riseDistance)
+        val riseRatio = min(1f, max(0f, topBorder - circle2.top) / riseDistance)
 
         val u1: Double
         val u2: Double
         if (d < radius1 + radius2) { // case circles are overlapping
-            u1 = Math.acos((radius1 * radius1 + d * d - radius2 * radius2) /
+            u1 = acos((radius1 * radius1 + d * d - radius2 * radius2) /
                     (2 * radius1 * d))
-            u2 = Math.acos((radius2 * radius2 + d * d - radius1 * radius1) /
+            u2 = acos((radius2 * radius2 + d * d - radius1 * radius1) /
                     (2 * radius2 * d))
         } else {
             u1 = 0.0
@@ -478,12 +479,12 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val bottomSpreadDiff = bottomStartSpreadFactor - bottomEndSpreadFactor
         val bottomSpreadFactor = bottomStartSpreadFactor - bottomSpreadDiff * riseRatio
 
-        val angle1 = Math.atan2(centerYMin, centerXMin)
-        val angle2 = Math.acos((radius1 - radius2) / d)
+        val angle1 = atan2(centerYMin, centerXMin)
+        val angle2 = acos((radius1 - radius2) / d)
         val angle1a = angle1 + u1 + (angle2 - u1) * bottomSpreadFactor
         val angle1b = angle1 - u1 - (angle2 - u1) * bottomSpreadFactor
-        val angle2a = (angle1 + Math.PI - u2 - (Math.PI - u2 - angle2) * topSpreadFactor)
-        val angle2b = (angle1 - Math.PI + u2 + (Math.PI - u2 - angle2) * topSpreadFactor)
+        val angle2a = (angle1 + PI - u2 - (PI - u2 - angle2) * topSpreadFactor)
+        val angle2b = (angle1 - PI + u2 + (PI - u2 - angle2) * topSpreadFactor)
 
         val p1a = getVector(angle1a, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
         val p1b = getVector(angle1b, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
@@ -491,22 +492,22 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val p2b = getVector(angle2b, radius2).let { (it.first + circle2.centerX()) to (it.second + circle2.centerY()) }.toList()
 
         val totalRadius = (radius1 + radius2)
-        val d2Base = Math.min(Math.max(topSpreadFactor, bottomSpreadFactor) * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
+        val d2Base = min(max(topSpreadFactor, bottomSpreadFactor) * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
 
         // case circles are overlapping:
-        val d2 = d2Base * Math.min(1.0, d * 2 / (radius1 + radius2))
+        val d2 = d2Base * min(1.0, d * 2 / (radius1 + radius2))
 
         val r1 = radius1 * d2
         val r2 = radius2 * d2
 
-        val pi2 = Math.PI / 2
+        val pi2 = PI / 2
         val sp1 = getVector(angle1a - pi2, r1).toList().map { it.toFloat() }
         val sp2 = getVector(angle2a + pi2, r2).toList().map { it.toFloat() }
         val sp3 = getVector(angle2b - pi2, r2).toList().map { it.toFloat() }
         val sp4 = getVector(angle1b + pi2, r1).toList().map { it.toFloat() }
 
         // move bottom point to bar top border
-        val yOffset = (Math.abs(topBorder - p1a[1]) * riseRatio).toFloat() - 1
+        val yOffset = (abs(topBorder - p1a[1]) * riseRatio).toFloat() - 1
 
         val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
         val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
