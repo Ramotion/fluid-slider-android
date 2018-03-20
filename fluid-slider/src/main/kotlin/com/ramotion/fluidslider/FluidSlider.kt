@@ -331,7 +331,6 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = resolveSizeAndState(desiredWidth, widthMeasureSpec, 0)
         val h = resolveSizeAndState(desiredHeight, heightMeasureSpec, 0)
-
         setMeasuredDimension(w, h)
     }
 
@@ -339,7 +338,6 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         super.onSizeChanged(w, h, oldw, oldh)
 
         val width = w.toFloat()
-
         rectBar.set(0f, barVerticalOffset, width, barVerticalOffset + barHeight)
         rectTopCircle.set(0f, barVerticalOffset, topCircleDiameter, barVerticalOffset + topCircleDiameter)
         rectBottomCircle.set(0f, barVerticalOffset, bottomCircleDiameter, barVerticalOffset + bottomCircleDiameter)
@@ -433,11 +431,15 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         return Math.sqrt(x * x + y * y)
     }
 
-    private fun drawMetaball(canvas: Canvas, paint: Paint,
-                             path: Path, circle1: RectF, circle2: RectF,
+    private fun drawMetaball(canvas: Canvas,
+                             paint: Paint,
+                             path: Path,
+                             circle1: RectF,
+                             circle2: RectF,
                              topBorder: Float,
                              riseDistance: Float = metaballRiseDistance,
                              maxDistance: Double = metaballMaxDistance,
+                             cornerRadius: Float = barCornerRadius,
                              topSpreadFactor: Double = TOP_SPREAD_FACTOR,
                              bottomStartSpreadFactor: Double = BOTTOM_START_SPREAD_FACTOR,
                              bottomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
@@ -513,13 +515,13 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
         with(path) {
             reset()
-            moveTo(fp1a[0], fp1a[1] + barCornerRadius)
+            moveTo(fp1a[0], fp1a[1] + cornerRadius)
             lineTo(fp1a[0], fp1a[1])
             cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
             lineTo(circle2.centerX(), circle2.centerY())
             lineTo(fp2b[0], fp2b[1])
             cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
-            lineTo(fp1b[0], fp1b[1] + barCornerRadius)
+            lineTo(fp1b[0], fp1b[1] + cornerRadius)
             close()
         }
 
