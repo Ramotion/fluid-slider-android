@@ -34,11 +34,11 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         const val LABEL_CIRCLE_DIAMETER = 10
 
         const val ANIMATION_DURATION = 400
-        const val TOP_SPREAD_FACTOR = 0.4
-        const val BOTTOM_START_SPREAD_FACTOR = 0.25
-        const val BOTTOM_END_SPREAD_FACTOR = 0.1
-        const val METABALL_HANDLER_FACTOR = 2.4
-        const val METABALL_MAX_DISTANCE = 15.0
+        const val TOP_SPREAD_FACTOR = 0.4f
+        const val BOTTOM_START_SPREAD_FACTOR = 0.25f
+        const val BOTTOM_END_SPREAD_FACTOR = 0.1f
+        const val METABALL_HANDLER_FACTOR = 2.4f
+        const val METABALL_MAX_DISTANCE = 15.0f
         const val METABALL_RISE_DISTANCE = 1.1f
 
         const val TEXT_SIZE = 12
@@ -64,7 +64,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val touchRectDiameter: Float
     private val labelRectDiameter: Float
 
-    private val metaballMaxDistance: Double
+    private val metaballMaxDistance: Float
     private val metaballRiseDistance: Float
     private val textOffset: Float
 
@@ -420,13 +420,13 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    private fun getVector(radians: Double, length: Double): Pair<Double, Double> {
+    private fun getVector(radians: Float, length: Float): Pair<Float, Float> {
         val x = (cos(radians) * length)
         val y = (sin(radians) * length)
         return x to y
     }
 
-    private fun getVectorLength(p1: Pair<Double, Double>, p2: Pair<Double, Double>): Double {
+    private fun getVectorLength(p1: Pair<Float, Float>, p2: Pair<Float, Float>): Float {
         val x = p1.first - p2.first
         val y = p1.second - p2.second
         return sqrt(x * x + y * y)
@@ -439,52 +439,51 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                              circle2: RectF,
                              topBorder: Float,
                              riseDistance: Float = metaballRiseDistance,
-                             maxDistance: Double = metaballMaxDistance,
+                             maxDistance: Float = metaballMaxDistance,
                              cornerRadius: Float = barCornerRadius,
-                             topSpreadFactor: Double = TOP_SPREAD_FACTOR,
-                             bottomStartSpreadFactor: Double = BOTTOM_START_SPREAD_FACTOR,
-                             bottomEndSpreadFactor: Double = BOTTOM_END_SPREAD_FACTOR,
-                             handleRate: Double = METABALL_HANDLER_FACTOR) {
-        val radius1 = circle1.width() / 2.0
-        val radius2 = circle2.width() / 2.0
+                             topSpreadFactor: Float = TOP_SPREAD_FACTOR,
+                             bottomStartSpreadFactor: Float = BOTTOM_START_SPREAD_FACTOR,
+                             bottomEndSpreadFactor: Float = BOTTOM_END_SPREAD_FACTOR,
+                             handleRate: Float = METABALL_HANDLER_FACTOR) {
+        val radius1 = circle1.width() / 2.0f
+        val radius2 = circle2.width() / 2.0f
 
-        if (radius1 == 0.0 || radius2 == 0.0) {
+        if (radius1 == 0.0f || radius2 == 0.0f) {
             return
         }
 
         val d = getVectorLength(
-                circle1.centerX().toDouble() to circle1.centerY().toDouble(),
-                circle2.centerX().toDouble() to circle2.centerY().toDouble())
+                circle1.centerX() to circle1.centerY(),
+                circle2.centerX() to circle2.centerY())
         if (d > maxDistance || d <= abs(radius1 - radius2)) {
             return
         }
 
         val riseRatio = min(1f, max(0f, topBorder - circle2.top) / riseDistance)
 
-        val u1: Double
-        val u2: Double
+        val u1: Float
+        val u2: Float
         if (d < radius1 + radius2) { // case circles are overlapping
-            u1 = acos((radius1 * radius1 + d * d - radius2 * radius2) /
-                    (2 * radius1 * d))
-            u2 = acos((radius2 * radius2 + d * d - radius1 * radius1) /
-                    (2 * radius2 * d))
+            u1 = acos((radius1 * radius1 + d * d - radius2 * radius2) / (2 * radius1 * d))
+            u2 = acos((radius2 * radius2 + d * d - radius1 * radius1) / (2 * radius2 * d))
         } else {
-            u1 = 0.0
-            u2 = 0.0
+            u1 = 0.0f
+            u2 = 0.0f
         }
 
-        val centerXMin = (circle2.centerX() - circle1.centerX()).toDouble()
-        val centerYMin = (circle2.centerY() - circle1.centerY()).toDouble()
+        val centerXMin = circle2.centerX() - circle1.centerX()
+        val centerYMin = circle2.centerY() - circle1.centerY()
 
         val bottomSpreadDiff = bottomStartSpreadFactor - bottomEndSpreadFactor
         val bottomSpreadFactor = bottomStartSpreadFactor - bottomSpreadDiff * riseRatio
 
+        val fPI = PI.toFloat()
         val angle1 = atan2(centerYMin, centerXMin)
         val angle2 = acos((radius1 - radius2) / d)
         val angle1a = angle1 + u1 + (angle2 - u1) * bottomSpreadFactor
         val angle1b = angle1 - u1 - (angle2 - u1) * bottomSpreadFactor
-        val angle2a = (angle1 + PI - u2 - (PI - u2 - angle2) * topSpreadFactor)
-        val angle2b = (angle1 - PI + u2 + (PI - u2 - angle2) * topSpreadFactor)
+        val angle2a = (angle1 + fPI - u2 - (fPI - u2 - angle2) * topSpreadFactor)
+        val angle2b = (angle1 - fPI + u2 + (fPI - u2 - angle2) * topSpreadFactor)
 
         val p1a = getVector(angle1a, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
         val p1b = getVector(angle1b, radius1).let { (it.first + circle1.centerX()) to (it.second + circle1.centerY()) }.toList()
@@ -495,12 +494,12 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val d2Base = min(max(topSpreadFactor, bottomSpreadFactor) * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
 
         // case circles are overlapping:
-        val d2 = d2Base * min(1.0, d * 2 / (radius1 + radius2))
+        val d2 = d2Base * min(1.0f, d * 2 / (radius1 + radius2))
 
         val r1 = radius1 * d2
         val r2 = radius2 * d2
 
-        val pi2 = PI / 2
+        val pi2 = fPI / 2
         val sp1 = getVector(angle1a - pi2, r1).toList().map { it.toFloat() }
         val sp2 = getVector(angle2a + pi2, r2).toList().map { it.toFloat() }
         val sp3 = getVector(angle2b - pi2, r2).toList().map { it.toFloat() }
