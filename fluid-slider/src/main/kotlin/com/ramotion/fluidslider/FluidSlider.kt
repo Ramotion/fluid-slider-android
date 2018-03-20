@@ -426,9 +426,9 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         return x to y
     }
 
-    private fun getVectorLength(p1: Pair<Float, Float>, p2: Pair<Float, Float>): Float {
-        val x = p1.first - p2.first
-        val y = p1.second - p2.second
+    private fun getVectorLength(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        val x = x1 - x2
+        val y = y1 - y2
         return sqrt(x * x + y * y)
     }
 
@@ -452,9 +452,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             return
         }
 
-        val d = getVectorLength(
-                circle1.centerX() to circle1.centerY(),
-                circle2.centerX() to circle2.centerY())
+        val d = getVectorLength(circle1.centerX(), circle1.centerY(), circle2.centerX(), circle2.centerY())
         if (d > maxDistance || d <= abs(radius1 - radius2)) {
             return
         }
@@ -491,7 +489,9 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val p2b = getVector(angle2b, radius2).let { (it.first + circle2.centerX()) to (it.second + circle2.centerY()) }.toList()
 
         val totalRadius = (radius1 + radius2)
-        val d2Base = min(max(topSpreadFactor, bottomSpreadFactor) * handleRate, getVectorLength(p1a[0] to p1a[1], p2a[0] to p2a[1]) / totalRadius)
+        val d2Base = min(
+                max(topSpreadFactor, bottomSpreadFactor) * handleRate,
+                getVectorLength(p1a[0], p1a[1], p2a[0], p2a[1]) / totalRadius)
 
         // case circles are overlapping:
         val d2 = d2Base * min(1.0f, d * 2 / (radius1 + radius2))
@@ -500,27 +500,24 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val r2 = radius2 * d2
 
         val pi2 = fPI / 2
-        val sp1 = getVector(angle1a - pi2, r1).toList().map { it.toFloat() }
-        val sp2 = getVector(angle2a + pi2, r2).toList().map { it.toFloat() }
-        val sp3 = getVector(angle2b - pi2, r2).toList().map { it.toFloat() }
-        val sp4 = getVector(angle1b + pi2, r1).toList().map { it.toFloat() }
+        val sp1 = getVector(angle1a - pi2, r1).toList()
+        val sp2 = getVector(angle2a + pi2, r2).toList()
+        val sp3 = getVector(angle2b - pi2, r2).toList()
+        val sp4 = getVector(angle1b + pi2, r1).toList()
 
         // move bottom point to bar top border
-        val yOffset = (abs(topBorder - p1a[1]) * riseRatio).toFloat() - 1
-
-        val fp1a = p1a.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
-        val fp1b = p1b.map { it.toFloat() }.let { l -> listOf(l[0], l[1] - yOffset) }
-        val fp2a = p2a.map { it.toFloat() }
-        val fp2b = p2b.map { it.toFloat() }
+        val yOffset = (abs(topBorder - p1a[1]) * riseRatio) - 1
+        val fp1a = p1a.let { l -> listOf(l[0], l[1] - yOffset) }
+        val fp1b = p1b.let { l -> listOf(l[0], l[1] - yOffset) }
 
         with(path) {
             reset()
             moveTo(fp1a[0], fp1a[1] + cornerRadius)
             lineTo(fp1a[0], fp1a[1])
-            cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], fp2a[0] + sp2[0], fp2a[1] + sp2[1], fp2a[0], fp2a[1])
+            cubicTo(fp1a[0] + sp1[0], fp1a[1] + sp1[1], p2a[0] + sp2[0], p2a[1] + sp2[1], p2a[0], p2a[1])
             lineTo(circle2.centerX(), circle2.centerY())
-            lineTo(fp2b[0], fp2b[1])
-            cubicTo(fp2b[0] + sp3[0], fp2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
+            lineTo(p2b[0], p2b[1])
+            cubicTo(p2b[0] + sp3[0], p2b[1] + sp3[1], fp1b[0] + sp4[0], fp1b[1] + sp4[1], fp1b[0], fp1b[1])
             lineTo(fp1b[0], fp1b[1] + cornerRadius)
             close()
         }
