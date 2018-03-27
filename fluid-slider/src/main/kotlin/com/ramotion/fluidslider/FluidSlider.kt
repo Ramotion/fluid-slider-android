@@ -388,6 +388,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 touchX = x
                 beginTrackingListener?.invoke()
                 showLabel(metaballRiseDistance)
+                parent.requestDisallowInterceptTouchEvent(true)
                 true
             } else {
                 false
@@ -402,12 +403,14 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 true
             } == true
         }
-        MotionEvent.ACTION_UP -> {
+        MotionEvent.ACTION_UP,
+        MotionEvent.ACTION_CANCEL -> {
             touchX?.let {
                 touchX = null
                 endTrackingListener?.invoke()
                 hideLabel()
                 performClick()
+                parent.requestDisallowInterceptTouchEvent(false)
                 true
             } == true
         }
