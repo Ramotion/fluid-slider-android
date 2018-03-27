@@ -65,6 +65,7 @@ slider.endTrackingListener = { /* action on slider released */ }
 
 Here is simple example, how to change `FluidSlider` range.
 ```kotlin
+// Kotlin
 val max = 45
 val min = 10
 val total = max - min
@@ -74,6 +75,31 @@ slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).t
 slider.position = 0.3f
 slider.startText ="$min"
 slider.endText = "$max"
+
+// Java
+final FluidSlider slider = findViewById(R.id.fluidSlider);
+slider.setBeginTrackingListener(new Function0<Unit>() {
+    @Override
+    public Unit invoke() {
+        Log.d("D", "setBeginTrackingListener");
+        return Unit.INSTANCE;
+    }
+});
+
+slider.setEndTrackingListener(new Function0<Unit>() {
+    @Override
+    public Unit invoke() {
+        Log.d("D", "setEndTrackingListener");
+        return Unit.INSTANCE;
+    }
+});
+
+// Or Java 8 lambda
+slider.setPositionListener(pos -> {
+    final String value = String.valueOf( (int)((1 - pos) * 100) );
+    slider.setBubbleText(value);
+    return Unit.INSTANCE;
+});
 ```
 
 Here are the attributes you can specify through XML or related setters:
