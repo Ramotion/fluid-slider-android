@@ -1,1 +1,1 @@
-include ':fluid-slider-simple-example', ':fluid-slider'
+include ':fluid-slider-example-simple', ':fluid-slider'
