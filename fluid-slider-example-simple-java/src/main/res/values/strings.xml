@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">fluid-slider-example-simple-java</string>
+    <string name="long_text">Kotlin is a great fit for developing Android applications, bringing all of the advantages of a modern language to the Android platform without introducing any new restrictions.</string>
+</resources>

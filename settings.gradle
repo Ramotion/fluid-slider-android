@@ -1,1 +1,1 @@
-include ':fluid-slider-example-simple', ':fluid-slider'
+include ':fluid-slider-example-simple', ':fluid-slider', ':fluid-slider-example-simple-java'
