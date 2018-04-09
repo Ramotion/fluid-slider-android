@@ -380,40 +380,19 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         canvas.drawOval(rectLabel, paintLabel)
 
         val text = bubbleText ?: (position * 100).toInt().toString()
-        if (text.length > 4)
+        if (text.length > 3)
             setTextSizeForWidth(paintTextBubble, rectLabel.width() - 10, bubbleText)
         drawText(canvas, paintTextBubble, text, Paint.Align.CENTER, colorBubbleText, 0f, rectLabel, rectText)
     }
 
-    /**
-     * Sets the text size for a Paint object so a given string of text will be a
-     * given width.
-     *
-     * @param paint
-     * the Paint to set the text size for
-     * @param desiredWidth
-     * the desired width
-     * @param text
-     * the text that should be that width
-     */
-    private fun setTextSizeForWidth(paint: Paint, desiredWidth: Float,
-                                    text: String?) {
-
-        // Pick a reasonably large value for the test. Larger values produce
-        // more accurate results, but may cause problems with hardware
-        // acceleration. But there are workarounds for that, too; refer to
-        // http://stackoverflow.com/questions/6253528/font-size-too-large-to-fit-in-cache
+    private fun setTextSizeForWidth(paint: Paint, desiredWidth: Float, text: String?) {
         val testTextSize = 48f
 
-        // Get the bounds of the text, using our testTextSize.
         paint.textSize = testTextSize
         val bounds = Rect()
         paint.getTextBounds(text, 0, text!!.length, bounds)
 
-        // Calculate the desired size as a proportion of our testTextSize.
         val desiredTextSize = testTextSize * desiredWidth / bounds.width()
-
-        // Set the paint for that size.
         paint.textSize = desiredTextSize
     }
 
