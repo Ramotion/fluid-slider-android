@@ -9,10 +9,10 @@ import com.ramotion.fluidslider.FluidSlider;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

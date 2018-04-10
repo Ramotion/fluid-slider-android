@@ -7,10 +7,10 @@ group = 'com.ramotion.fluidslider'
 version = '0.2.0'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 3
         versionName version
 
