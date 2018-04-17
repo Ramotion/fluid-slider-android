@@ -4,6 +4,7 @@
 # Fluid Slider for Android
 [![Twitter](https://img.shields.io/badge/Twitter-@Ramotion-blue.svg?style=flat)](http://twitter.com/Ramotion)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/92bd2e49f7e543cd8748c670b9e52ca7)](https://www.codacy.com/app/dvg4000/fluid-slider-android?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Ramotion/fluid-slider-android&amp;utm_campaign=Badge_Grade)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/Ramotion)
 
 Inspired by [Virgil Pana](https://dribbble.com/virgilpana) [shot](https://dribbble.com/shots/3868232-Fluid-Slider)
 
