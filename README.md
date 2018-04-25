@@ -1,5 +1,6 @@
 [![header](./header.png)](https://ramotion.com?utm_source=gthb&utm_medium=special&utm_campaign=fluid-slider-android-logo)
-![animation](./Fluid-slider.gif)
+<img src="https://github.com/Ramotion/fluid-slider-android/blob/master/Fluid-slider.gif" width="493" height="450" />
+<br><br/>
 
 # Fluid Slider for Android
 [![Twitter](https://img.shields.io/badge/Twitter-@Ramotion-blue.svg?style=flat)](http://twitter.com/Ramotion)
