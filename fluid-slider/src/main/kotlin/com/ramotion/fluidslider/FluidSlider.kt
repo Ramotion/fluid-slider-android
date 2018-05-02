@@ -15,12 +15,30 @@ import android.view.animation.OvershootInterpolator
 import kotlin.math.*
 
 
-class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
+class FluidSlider @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0,
+        size: Size = Size.NORMAL) : View(context, attrs, defStyleAttr) {
+
+    /**
+     * Sizes that can be used.
+     * @see NORMAL
+     * @see SMALL
+     */
+    enum class Size(val value: Int) {
+        /**
+         * Default size - 56dp.
+         */
+        NORMAL(56),
+
+        /**
+         * Small size - 40dp.
+         */
+        SMALL(40)
+    }
 
     private companion object {
-        const val BAR_HEIGHT_NORMAL = 56
-        const val BAR_HEIGHT_SMALL = 40
-
         const val BAR_CORNER_RADIUS = 2
         const val BAR_VERTICAL_OFFSET = 1.5f
         const val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
@@ -279,7 +297,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
                 a.getString(R.styleable.FluidSlider_end_text)?.also { endText = it }
 
-                val defaultBarHeight = if (a.getInteger(R.styleable.FluidSlider_size, 1) == 1) BAR_HEIGHT_NORMAL else BAR_HEIGHT_SMALL
+                val defaultBarHeight = if (a.getInteger(R.styleable.FluidSlider_size, 1) == 1) Size.NORMAL.value else Size.SMALL.value
                 barHeight = defaultBarHeight * density
             } finally {
                 a.recycle()
@@ -288,7 +306,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             colorBar = COLOR_BAR
             colorBubble = COLOR_LABEL
             textSize = TEXT_SIZE * density
-            barHeight = BAR_HEIGHT_NORMAL * density
+            barHeight = size.value * density
         }
 
         desiredWidth = (barHeight * SLIDER_WIDTH).toInt()
@@ -307,6 +325,14 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         barInnerOffset = BAR_INNER_HORIZONTAL_OFFSET * density
         textOffset = TEXT_OFFSET * density
     }
+
+    /**
+     * Additional constructor that can be used to create FluidSlider programmatically.
+     * @param context The Context the view is running in, through which it can access the current theme, resources, etc.
+     * @param size Size of FluidSlider.
+     * @see Size
+     */
+    constructor(context: Context, size: Size) : this(context, null, 0, size)
 
     override fun onSaveInstanceState(): Parcelable {
         return State(super.onSaveInstanceState(),
@@ -546,8 +572,8 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         canvas.drawText(text, 0, text.length, x, y, paint)
     }
 
-    private fun showLabel(dinstance: Float) {
-        val top = barVerticalOffset - dinstance
+    private fun showLabel(distance: Float) {
+        val top = barVerticalOffset - distance
         val labelVOffset = (topCircleDiameter - labelRectDiameter) / 2f
 
         val animation = ValueAnimator.ofFloat(rectTopCircle.top, top)
