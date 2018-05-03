@@ -4,14 +4,14 @@ apply plugin: 'signing'
 apply plugin: 'com.bmuschko.nexus'
 
 group = 'com.ramotion.fluidslider'
-version = '0.2.0'
+version = '0.3.0'
 
 android {
     compileSdkVersion 27
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 3
+        versionCode 4
         versionName version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
