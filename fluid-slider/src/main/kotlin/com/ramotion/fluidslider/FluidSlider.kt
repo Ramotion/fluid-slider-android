@@ -171,6 +171,7 @@ class FluidSlider @JvmOverloads constructor(
     var position = INITIAL_POSITION
         set(value) {
             field = max(0f, min(1f, value))
+            invalidate()
             positionListener?.invoke(field)
         }
 
@@ -425,7 +426,6 @@ class FluidSlider @JvmOverloads constructor(
                 touchX = event.x
                 val newPos = max(0f, min(1f, position + (event.x - it) / maxMovement))
                 position = newPos
-                invalidate()
                 true
             } == true
         }
