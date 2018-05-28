@@ -116,16 +116,19 @@ class FluidSlider @JvmOverloads constructor(
     /**
      * Color of text inside "bubble".
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     var colorBubbleText = COLOR_LABEL_TEXT
 
     /**
      * Color of `start` and `end` texts of slider.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     var colorBarText = COLOR_BAR_TEXT
 
     /**
      * Color of slider.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     var colorBar: Int
         get() = paintBar.color
         set(value) {
@@ -135,6 +138,7 @@ class FluidSlider @JvmOverloads constructor(
     /**
      * Color of circle "bubble" inside bar.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     var colorBubble: Int
         get() = paintLabel.color
         set(value) {
