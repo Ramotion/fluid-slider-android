@@ -19,7 +19,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:size="small"
-        app:duration="@android:integer/config_mediumAnimTime"/>
+        app:duration="@android:integer/config_mediumAnimTime"
+        tools:targetApi="lollipop" />
 
     <TextView
         android:id="@+id/textView"
