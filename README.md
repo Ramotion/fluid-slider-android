@@ -116,6 +116,9 @@ Here are the attributes you can specify through XML or related setters:
 * `initial_position` - Initial positon of "bubble" in range form `0.0` to `1.0`.
 * `size` - Height of slider. Can be `small` (40dp) and `normal` (56dp).
 
+
+This library is a part of a <a href="https://github.com/Ramotion/android-ui-animation-components-and-libraries"><b>selection of our best UI open-source projects.</b></a>
+
 ## License
 ​
 Fluid Slider for Android is released under the MIT license.
