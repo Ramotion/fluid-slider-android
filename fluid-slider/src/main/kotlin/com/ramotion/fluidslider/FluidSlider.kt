@@ -41,7 +41,7 @@ class FluidSlider @JvmOverloads constructor(
     private companion object {
         const val BAR_CORNER_RADIUS = 2
         const val BAR_VERTICAL_OFFSET = 1.5f
-        const val BAR_INNER_HORIZONTAL_OFFSET = 0 // TODO: remove
+        const val BAR_INNER_HORIZONTAL_OFFSET = 0
 
         const val SLIDER_WIDTH = 4
         const val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
