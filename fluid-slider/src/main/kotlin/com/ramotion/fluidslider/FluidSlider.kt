@@ -398,7 +398,9 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
         paint.textSize = testTextSize
         val bounds = Rect()
-        paint.getTextBounds(text, 0, text!!.length, bounds)
+        if (text != null) {
+            paint.getTextBounds(text, 0, text.length, bounds)
+        }
 
         val desiredTextSize = testTextSize * desiredWidth / bounds.width()
         paint.textSize = desiredTextSize
