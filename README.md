@@ -119,6 +119,10 @@ Here are the attributes you can specify through XML or related setters:
 
 This library is a part of a <a href="https://github.com/Ramotion/android-ui-animation-components-and-libraries"><b>selection of our best UI open-source projects.</b></a>
 
+## Third Party Bindings
+ ### React Native
+You may now use this library with [React Native](https://github.com/facebook/react-native) via the module [here](https://github.com/prscX/react-native-fluidic-slider)
+
 ## License
 ​
 Fluid Slider for Android is released under the MIT license.
