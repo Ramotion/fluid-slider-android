@@ -83,6 +83,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val paintBar: Paint
     private val paintLabel: Paint
     private val paintText: Paint
+    private val paintTextBubble: Paint
 
     private var maxMovement = 0f
     private var touchX: Float? = null
@@ -130,6 +131,15 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         get() = paintText.textSize
         set(value) {
             paintText.textSize = value
+        }
+
+    /**
+     * Text size.
+     */
+    var textSizeBubble: Float
+        get() = paintTextBubble.textSize
+        set(value) {
+            paintTextBubble.textSize = value
         }
 
     /**
@@ -195,6 +205,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val startText: String?
         val endText: String?
         val textSize: Float
+        val textSizeBubble: Float
         val colorLabel: Int
         val colorBar: Int
         val colorBarText: Int
@@ -206,6 +217,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     startText: String?,
                     endText: String?,
                     textSize: Float,
+                    textSizeBubble: Float,
                     colorLabel: Int,
                     colorBar: Int,
                     colorBarText: Int,
@@ -215,6 +227,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             this.startText = startText
             this.endText = endText
             this.textSize = textSize
+            this.textSizeBubble = textSizeBubble
             this.colorLabel = colorLabel
             this.colorBar = colorBar
             this.colorBarText = colorBarText
@@ -227,6 +240,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             this.startText = parcel.readString()
             this.endText = parcel.readString()
             this.textSize = parcel.readFloat()
+            this.textSizeBubble = parcel.readFloat()
             this.colorLabel = parcel.readInt()
             this.colorBar = parcel.readInt()
             this.colorBarText = parcel.readInt()
@@ -239,6 +253,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             parcel.writeString(startText)
             parcel.writeString(endText)
             parcel.writeFloat(textSize)
+            parcel.writeFloat(textSizeBubble)
             parcel.writeInt(colorLabel)
             parcel.writeInt(colorBar)
             parcel.writeInt(colorBarText)
@@ -261,6 +276,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         paintLabel.style = Paint.Style.FILL
 
         paintText = Paint(Paint.ANTI_ALIAS_FLAG)
+        paintTextBubble = Paint(Paint.ANTI_ALIAS_FLAG)
 
         val density = context.resources.displayMetrics.density
 
@@ -274,6 +290,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
                 position = max(0f, min(1f, a.getFloat(R.styleable.FluidSlider_initial_position, INITIAL_POSITION)))
                 textSize = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
+                textSizeBubble = a.getDimension(R.styleable.FluidSlider_text_size, TEXT_SIZE * density)
                 duration = abs(a.getInteger(R.styleable.FluidSlider_duration, ANIMATION_DURATION)).toLong()
 
                 a.getString(R.styleable.FluidSlider_start_text)?.also { startText = it }
@@ -288,6 +305,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             colorBar = COLOR_BAR
             colorBubble = COLOR_LABEL
             textSize = TEXT_SIZE * density
+            textSizeBubble = TEXT_SIZE * density
             barHeight = BAR_HEIGHT_NORMAL * density
         }
 
@@ -310,7 +328,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun onSaveInstanceState(): Parcelable {
         return State(super.onSaveInstanceState(),
-                position, startText, endText, textSize,
+                position, startText, endText, textSize, textSizeBubble,
                 colorBubble, colorBar, colorBarText, colorBubbleText, duration)
     }
 
@@ -321,6 +339,7 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
             startText = state.startText
             endText = state.endText
             textSize = state.textSize
+            textSizeBubble = state.textSizeBubble
             colorBubble = state.colorLabel
             colorBar = state.colorBar
             colorBarText = state.colorBarText
@@ -369,7 +388,22 @@ class FluidSlider @JvmOverloads constructor(context: Context, attrs: AttributeSe
         canvas.drawOval(rectLabel, paintLabel)
 
         val text = bubbleText ?: (position * 100).toInt().toString()
-        drawText(canvas, paintText, text, Paint.Align.CENTER, colorBubbleText, 0f, rectLabel, rectText)
+        if (text.length > 3)
+            setTextSizeForWidth(paintTextBubble, rectLabel.width() - 10, bubbleText)
+        drawText(canvas, paintTextBubble, text, Paint.Align.CENTER, colorBubbleText, 0f, rectLabel, rectText)
+    }
+
+    private fun setTextSizeForWidth(paint: Paint, desiredWidth: Float, text: String?) {
+        val testTextSize = 48f
+
+        paint.textSize = testTextSize
+        val bounds = Rect()
+        if (text != null) {
+            paint.getTextBounds(text, 0, text.length, bounds)
+        }
+
+        val desiredTextSize = testTextSize * desiredWidth / bounds.width()
+        paint.textSize = desiredTextSize
     }
 
     override fun performClick(): Boolean {
