@@ -258,6 +258,7 @@ class FluidSlider @JvmOverloads constructor(
         }
 
         override fun writeToParcel(parcel: Parcel, i: Int) {
+            super.writeToParcel(parcel, i)
             parcel.writeFloat(position)
             parcel.writeString(startText)
             parcel.writeString(endText)
@@ -346,8 +347,8 @@ class FluidSlider @JvmOverloads constructor(
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
-        super.onRestoreInstanceState(state)
         if (state is State) {
+            super.onRestoreInstanceState(state.superState)
             position = state.position
             startText = state.startText
             endText = state.endText
@@ -357,6 +358,8 @@ class FluidSlider @JvmOverloads constructor(
             colorBarText = state.colorBarText
             colorBubbleText = state.colorLabelText
             duration = state.duration
+        } else {
+            super.onRestoreInstanceState(state)
         }
     }
 
