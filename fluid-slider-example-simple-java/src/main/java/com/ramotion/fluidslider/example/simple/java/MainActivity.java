@@ -1,12 +1,12 @@
 package com.ramotion.fluidslider.example.simple.java;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.ramotion.fluidslider.FluidSlider;
 
+import androidx.appcompat.app.AppCompatActivity;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
