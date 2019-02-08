@@ -35,22 +35,22 @@ Inspired by [Virgil Pana](https://dribbble.com/virgilpana) [shot](https://dribbb
 
 ## Installation
 ​
-Just download the package from [here](http://central.maven.org/maven2/com/ramotion/fluidslider/fluid-slider/0.3.0/fluid-slider-0.3.0.aar) and add it to your project classpath, or just use the maven repo:
+Just download the package from [here](http://central.maven.org/maven2/com/ramotion/fluidslider/fluid-slider/0.3.1/fluid-slider-0.3.1.aar) and add it to your project classpath, or just use the maven repo:
 
 Gradle:
 ```groovy
-implementation 'com.ramotion.fluidslider:fluid-slider:0.3.0'
+implementation 'com.ramotion.fluidslider:fluid-slider:0.3.1'
 ```
 SBT:
 ```scala
-libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.3.0"
+libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.3.1"
 ```
 Maven:
 ```xml
 <dependency>
   <groupId>com.ramotion.fluidslider</groupId>
   <artifactId>fluid-slider</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.1</version>
   <type>aar</type>
 </dependency>
 ```
