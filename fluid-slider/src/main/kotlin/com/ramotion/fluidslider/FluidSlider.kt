@@ -226,7 +226,7 @@ class FluidSlider @JvmOverloads constructor(
         val colorLabelText: Int
         val duration: Long
 
-        constructor(superState: Parcelable,
+        constructor(superState: Parcelable?,
                     position: Float,
                     startText: String?,
                     endText: String?,
